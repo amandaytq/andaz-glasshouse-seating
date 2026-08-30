@@ -1,0 +1,25 @@
+{
+  "name": "glasshouse-layout-planner",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Interactive floor-plan planner for The Glasshouse 236-248 pax hybrid wedding layout",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server/index.js",
+    "serve": "npm run build && node server/index.js",
+    "pack:web": "npm run build && rm -f glasshouse-web.zip && cd dist && zip -qr ../glasshouse-web.zip . && cd .. && echo 'wrote glasshouse-web.zip (contents of dist/)'",
+    "pack:lambda": "rm -rf lambda/data && cp src/defaultLayout.js lambda/defaultLayout.js && cp -R src/data lambda/data && rm -f layout-lambda.zip && cd lambda && zip -qr ../layout-lambda.zip index.mjs defaultLayout.js package.json data && cd .. && echo 'wrote layout-lambda.zip'"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.2"
+  }
+}

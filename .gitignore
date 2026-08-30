@@ -1,0 +1,12 @@
+node_modules
+dist
+.DS_Store
+
+# runtime layout "database" — created by the local server on first run
+server/data/
+
+# deploy bundles
+glasshouse-web.zip
+layout-lambda.zip
+lambda/defaultLayout.js
+lambda/data/
