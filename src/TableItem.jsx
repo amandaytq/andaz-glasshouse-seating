@@ -57,7 +57,11 @@ function TableItemBase({
                 className={`seat${nm ? ' seat-filled' : ''}${side ? ` seat-${side}` : ''}${
                   baby ? ' seat-baby' : ''
                 }${role ? ' seat-couple' : ''}${
-                  shape === 'rect' ? (i % 2 === 0 ? ' seat-toprow' : ' seat-botrow') : ''
+                  shape === 'rect'
+                    ? i < Math.ceil(pax / 2)
+                      ? ' seat-toprow'
+                      : ' seat-botrow'
+                    : ''
                 }`}
                 cx={s.x}
                 cy={s.y}
@@ -135,7 +139,7 @@ function TableItemBase({
                 transform={`rotate(${-rot} ${s.nx} ${s.ny})`}
                 textAnchor={s.anchor}
                 dominantBaseline="middle"
-                style={{ fontSize: 0.68 }}
+                style={{ fontSize: 0.95 }}
               >
                 {seatNames[i]}
               </text>

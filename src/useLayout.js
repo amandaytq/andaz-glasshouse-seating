@@ -440,8 +440,8 @@ export function useLayout() {
     [commit],
   )
 
-  // Move seat `from` to position `to` within one table; the rest shift and every
-  // seat is renumbered by its new index. Baby-seat flags move with their row.
+  // Move seat `from` to position `to` within one table; the seats in between
+  // shift to fill the gap. Baby-seat flags travel with their row.
   const reorderSeats = useCallback(
     (tableId, from, to) => {
       if (from === to) return

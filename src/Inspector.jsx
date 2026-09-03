@@ -22,8 +22,9 @@ export function Inspector({
   onFillByRelation,
 }) {
   const seatRefs = useRef([])
+  const committedRef = useRef(false) // guards drop + dragend double-commit
   const [swapTarget, setSwapTarget] = useState('')
-  const [dragIdx, setDragIdx] = useState(null) // seat index being dragged
+  const [dragIdx, setDragIdx] = useState(null) // original seat index being dragged
   const [order, setOrder] = useState(null) // live visual order during a drag
 
   // when a seat is clicked on the plan, focus its control here
@@ -125,30 +126,33 @@ export function Inspector({
     set({ babySeats: [...next].sort((a, b) => a - b) })
   }
 
-  // ---- live seat reordering (drag rows in the list) --------------------
-  const defaultOrder = seatRange(0, seatCount)
-  const displayOrder = order && order.length === seatCount ? order : defaultOrder
+  // ---- drag a seat to a new position; the rows in between shift ------
+  // displayOrder[pos] = which seat's contents to show at row position `pos`.
+  const displayOrder = order && order.length === seatCount ? order : seatRange(0, seatCount)
 
-  const startSeatDrag = (seatIdx) => {
-    setDragIdx(seatIdx)
-    setOrder(seatRange(0, seatCount))
-  }
-  const dragSeatToPos = (pos) => {
-    if (dragIdx == null) return
+  const moveDragTo = (target) => {
     setOrder((cur) => {
       const base = cur && cur.length === seatCount ? cur : seatRange(0, seatCount)
-      const curPos = base.indexOf(dragIdx)
-      if (curPos < 0 || curPos === pos) return base
+      const from = base.indexOf(dragIdx)
+      if (from < 0) return base
+      let to = from < target ? target - 1 : target // account for the removal shift
+      to = Math.max(0, Math.min(to, seatCount - 1))
+      if (to === from) return base
       const arr = base.slice()
-      arr.splice(curPos, 1)
-      arr.splice(pos, 0, dragIdx)
+      arr.splice(from, 1)
+      arr.splice(to, 0, dragIdx)
       return arr
     })
   }
+  // `drop` (on a row) and `dragend` (on the handle) both fire on a successful
+  // drop — commit exactly once, keeping whatever the live preview settled on.
   const endSeatDrag = () => {
-    if (dragIdx != null && order) {
-      const to = order.indexOf(dragIdx)
-      if (to >= 0 && to !== dragIdx) onReorderSeat?.(item.id, dragIdx, to)
+    if (!committedRef.current) {
+      committedRef.current = true
+      if (dragIdx != null && order) {
+        const to = order.indexOf(dragIdx)
+        if (to >= 0 && to !== dragIdx) onReorderSeat?.(item.id, dragIdx, to)
+      }
     }
     setDragIdx(null)
     setOrder(null)
@@ -156,7 +160,7 @@ export function Inspector({
 
   const renderSeatRow = (seatIdx, pos) => {
     const val = seatNames[seatIdx] || ''
-    const isTop = pos % 2 === 0 // even position -> top row, odd -> bottom
+    const isTop = pos < Math.ceil(seatCount / 2) // first half -> top row
     const groups =
       val && !knownNames.has(val)
         ? [{ label: 'On this seat', options: [{ value: val, label: `${val} (not in list)` }] }, ...comboGroups]
@@ -165,12 +169,14 @@ export function Inspector({
       <div
         key={seatIdx}
         className={`guest-row${isRect ? (isTop ? ' row-top' : ' row-bot') : ''}${
-          dragIdx === seatIdx ? ' is-dragging' : ''
+          dragIdx === seatIdx ? ' is-swap' : ''
         }`}
         onDragOver={(e) => {
           if (dragIdx == null) return
           e.preventDefault()
-          dragSeatToPos(pos)
+          const r = e.currentTarget.getBoundingClientRect()
+          const after = e.clientY - r.top > r.height / 2
+          moveDragTo(pos + (after ? 1 : 0))
         }}
         onDrop={(e) => {
           e.preventDefault()
@@ -183,7 +189,9 @@ export function Inspector({
           draggable
           onDragStart={(e) => {
             e.dataTransfer.effectAllowed = 'move'
-            startSeatDrag(seatIdx)
+            committedRef.current = false
+            setDragIdx(seatIdx)
+            setOrder(seatRange(0, seatCount))
           }}
           onDragEnd={endSeatDrag}
         >
@@ -478,7 +486,7 @@ export function Inspector({
             <div className="guests-head">
               <span>
                 Guests ({seatNames.filter(Boolean).length}/{seatCount} seated)
-                {isRect && <span className="field-hint"> · odd = top row, even = bottom</span>}
+                {isRect && <span className="field-hint"> · first half = top row</span>}
               </span>
               {seatNames.some(Boolean) && (
                 <button className="mini" onClick={() => set({ seatNames: [] })}>

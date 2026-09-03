@@ -505,11 +505,10 @@ button.mini {
 .row-tag.is-bot {
   background: #f59e0b;
 }
-.guest-row.is-dragging {
+.guest-row.is-swap {
   position: relative;
   z-index: 20;
   background: #eef3fd;
-  box-shadow: 0 2px 8px rgba(31, 111, 235, 0.35);
   outline: 1px solid var(--accent);
 }
 .seat-move {
