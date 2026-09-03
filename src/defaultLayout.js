@@ -91,9 +91,11 @@ export function buildDefaultLayout() {
     version: 2,
     name: "The Glasshouse — HYBRID v1 (blueprint)",
     view: { ...DEFAULT_VIEW },
-    // Master guest list, split by side. Each: { id, name, side, relation, group, rsvp }.
+    // Master guest list, split by side. Each: { id, name, side, relation, rsvp }.
     // Seats reference guests by name (item.seatNames[i]).
     guests: [
+      { id: "g-bride", name: "Amanda", side: "bride", role: "bride", relation: "Bride", rsvp: "yes" },
+      { id: "g-groom", name: "Jeremiah", side: "groom", role: "groom", relation: "Groom", rsvp: "yes" },
       ...BRIDE_GUESTS.map((g, i) => ({ id: `g-b${i + 1}`, ...g })),
       ...GROOM_GUESTS.map((g, i) => ({ id: `g-g${i + 1}`, ...g })),
     ],
@@ -152,18 +154,20 @@ export function buildDefaultLayout() {
       },
 
       // ---- Top half (above the aisle) --------------------------------
-      rectTable("Table 10", 47.4, 5.5, 18),
-      rectTable("Table 9", 32.5, 15, 22),
-      rectTable("Table 8", 60, 15, 24),
-      rectTable("VIP2", 30.0, 25.5, 10, 9.5),
+      rectTable("VIP2", 30.0, 25.5, 8, 9.5),
       rectTable("Table 7", 57.5, 25.5, 36),
+      rectTable("Table 8", 60, 15, 24),
+      rectTable("Table 9", 32.5, 15, 24),
+      rectTable("Table 10", 47.4, 5.5, 20),
 
       // ---- Bottom half (below the aisle) ----------------------------
-      rectTable("VIP1", 30.0, 41, 10, 9.5),
+      rectTable("VIP1", 30.0, 41, 10, {
+        seatNames: ["", "Amanda", "", "Jeremiah"], // couple: seat 2 & seat 4
+      }),
       rectTable("Table 3", 57.5, 41, 36),
-      rectTable("Table 5", 32.5, 53, 22),
-      rectTable("Table 4", 60, 53, 24),
-      rectTable("Table 6", 47.4, 63.5, 18),
+      rectTable("Table 4", 32.5, 53, 24),
+      rectTable("Table 5", 60, 53, 24),
+      rectTable("Table 6", 47.4, 63.5, 20),
     ],
   };
 }

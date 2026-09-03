@@ -11,8 +11,9 @@ function TableItemBase({
   showSeats,
   showNames,
   sideByName,
+  roleByName,
   onPointerDown,
-  onSeatClick,
+  onSeatPointerDown,
 }) {
   const { kind, shape, rotation, lengthFt, widthFt, diameterFt, pax, name, color, active } = item
   const isTable = kind === 'table'
@@ -40,35 +41,38 @@ function TableItemBase({
     >
       {showSeats &&
         seats.map((s, i) => {
+          const nm = seatNames[i]
           const baby = babySeats.has(i)
-          const side = seatNames[i] && sideByName?.get(seatNames[i])
+          const side = nm && sideByName?.get(nm)
+          const role = nm && roleByName?.get(nm) // 'bride' | 'groom' | undefined
+          const emoji = role === 'bride' ? '👑' : role === 'groom' ? '🤵' : null
+          const r = baby ? 0.5 : 0.8
           return (
             <g
               key={i}
-              style={{ cursor: 'text' }}
-              onPointerDown={(e) => {
-                e.stopPropagation()
-                onSeatClick?.(item.id, i)
-              }}
+              style={{ cursor: 'pointer' }}
+              onPointerDown={(e) => onSeatPointerDown?.(e, item.id, i)}
             >
               <circle
-                className={`seat${seatNames[i] ? ' seat-filled' : ''}${
-                  side ? ` seat-${side}` : ''
-                }${baby ? ' seat-baby' : ''}`}
+                className={`seat${nm ? ' seat-filled' : ''}${side ? ` seat-${side}` : ''}${
+                  baby ? ' seat-baby' : ''
+                }${role ? ' seat-couple' : ''}${
+                  shape === 'rect' ? (i % 2 === 0 ? ' seat-toprow' : ' seat-botrow') : ''
+                }`}
                 cx={s.x}
                 cy={s.y}
-                r={baby ? 0.58 : 0.95}
+                r={r}
               />
               <text
-                className="seat-num"
+                className={`seat-num${emoji ? ' seat-emoji' : ''}`}
                 x={s.x}
                 y={s.y}
                 transform={`rotate(${-rot} ${s.x} ${s.y})`}
                 textAnchor="middle"
                 dominantBaseline="central"
-                style={{ fontSize: baby ? 0.65 : 1 }}
+                style={{ fontSize: emoji ? 1 : 0.82 }}
               >
-                {i + 1}
+                {emoji || i + 1}
               </text>
             </g>
           )
@@ -131,7 +135,7 @@ function TableItemBase({
                 transform={`rotate(${-rot} ${s.nx} ${s.ny})`}
                 textAnchor={s.anchor}
                 dominantBaseline="middle"
-                style={{ fontSize: 0.85 }}
+                style={{ fontSize: 0.68 }}
               >
                 {seatNames[i]}
               </text>
@@ -187,13 +191,6 @@ function TableItemBase({
 }
 
 const round1 = (n) => Math.round((Number(n) || 0) * 10) / 10
-
-// "Table 7 (36 pax · 36 ft)" — name, pax and length/diameter on one line.
-function tableLabel(item) {
-  const { name, pax, shape, lengthFt, diameterFt, active } = item
-  const size = shape === 'round' ? `${round1(diameterFt)} ft dia` : `${round1(lengthFt)} ft`
-  return `${name} (${pax} pax · ${size})${active === false ? ' — optional' : ''}`
-}
 
 // Wrap `text` into lines that fit `maxWidthFt` at the given font size (feet units).
 function wrapText(text, maxWidthFt, fontSize) {

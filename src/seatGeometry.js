@@ -1,13 +1,17 @@
 // Seat marker positions for a table, in the table's LOCAL coordinate space
 // (centre at 0,0, long axis along X for rectangles). Units: feet.
 //
+// Rectangular seats are numbered ALTERNATING up/down along the length:
+// seat 1 top-left, seat 2 bottom-left, seat 3 top, seat 4 bottom, ... so a pair
+// facing each other shares a column. `seats[i]` is the seat for index i.
+//
 // Each seat: { x, y } marker centre, plus { nx, ny, anchor, side } for the guest
-// name label. Adjacent labels are staggered — every other one is pushed further
-// out — so long names on tightly-spaced seats don't overlap their neighbours.
+// name label. Labels on alternate columns are pushed further out so long names
+// on tightly-spaced seats don't overlap their neighbours.
 
-const NAME_GAP = 0.9; // base distance from seat to its name label
-const STAGGER_FT = 0.9; // extra push-out for every other label (rect)
-const STAGGER_ROUND_FT = 1.5; // extra radius for every other label (round)
+const NAME_GAP = 0.5; // base distance from seat to its name label
+const STAGGER_FT = 0.7; // extra push-out for alternate columns (rect)
+const STAGGER_ROUND_FT = 1.2; // extra radius for every other label (round)
 
 export function rectSeatPositions(lengthFt, widthFt, pax) {
   if (pax <= 0) return [];
@@ -15,30 +19,27 @@ export function rectSeatPositions(lengthFt, widthFt, pax) {
   const yTop = -(widthFt / 2 + inset);
   const yBot = widthFt / 2 + inset;
 
-  const topCount = Math.ceil(pax / 2);
-  const botCount = pax - topCount;
-  const seats = [];
+  const cols = Math.ceil(pax / 2);
+  const usable = lengthFt - 1.5;
+  const step = cols > 1 ? usable / (cols - 1) : 0;
+  const start = cols > 1 ? -usable / 2 : 0;
 
-  const place = (count, y, side) => {
-    if (count <= 0) return;
-    const usable = lengthFt - 1.5;
-    const step = count > 1 ? usable / (count - 1) : 0;
-    const start = count > 1 ? -usable / 2 : 0;
-    for (let i = 0; i < count; i++) {
-      const x = start + i * step;
-      const far = i % 2 === 1 ? STAGGER_FT : 0; // alternate label height
-      seats.push({
-        x,
-        y,
-        side,
-        nx: x,
-        ny: side === "top" ? y - NAME_GAP - far : y + NAME_GAP + far,
-        anchor: "middle",
-      });
-    }
-  };
-  place(topCount, yTop, "top");
-  place(botCount, yBot, "bottom");
+  const seats = [];
+  for (let i = 0; i < pax; i++) {
+    const col = Math.floor(i / 2);
+    const top = i % 2 === 0; // even index -> top, odd -> bottom
+    const x = start + col * step;
+    const y = top ? yTop : yBot;
+    const far = col % 2 === 1 ? STAGGER_FT : 0;
+    seats.push({
+      x,
+      y,
+      side: top ? "top" : "bottom",
+      nx: x,
+      ny: top ? y - NAME_GAP - far : y + NAME_GAP + far,
+      anchor: "middle",
+    });
+  }
   return seats;
 }
 

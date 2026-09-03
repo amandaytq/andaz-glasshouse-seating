@@ -231,42 +231,44 @@ button.mini {
   flex-shrink: 0;
 }
 
+/* NOTE: values below are in page-point (viewBox) units — scaled with
+   CANVAS_SCALE (venue.js), currently 2x. */
 .venue-outline {
   fill: none;
   stroke: #33404d;
-  stroke-width: 1.4;
+  stroke-width: 2.8;
   stroke-linejoin: round;
 }
 
 .venue-column {
   fill: none;
   stroke: #8a95a0;
-  stroke-width: 1;
+  stroke-width: 2;
 }
 
 .venue-note {
-  font-size: 7px;
+  font-size: 14px;
   fill: #7d5bd6;
   font-style: italic;
 }
 
 .grid-line {
   stroke: #6b93d6;
-  stroke-width: 0.3;
+  stroke-width: 0.6;
   opacity: 0.35;
 }
 .grid-line.grid-major {
   stroke: #4c78c8;
-  stroke-width: 0.5;
+  stroke-width: 1;
   opacity: 0.5;
 }
 
 .scale-bar line {
   stroke: #23303c;
-  stroke-width: 1.2;
+  stroke-width: 2.4;
 }
 .scale-bar text {
-  font-size: 8px;
+  font-size: 16px;
   fill: #23303c;
   font-weight: 600;
 }
@@ -297,12 +299,29 @@ button.mini {
   stroke: #c69a00;
   stroke-width: 0.08;
 }
+.item .seat.seat-couple {
+  fill: #c4a7e7;
+}
+/* top / bottom row ring — matches the T/B tags in the inspector */
+.item .seat.seat-toprow {
+  stroke: #10b981;
+  stroke-width: 0.16;
+}
+.item .seat.seat-botrow {
+  stroke: #f59e0b;
+  stroke-width: 0.16;
+}
+.seat-num.seat-emoji {
+  fill: none;
+  stroke: none;
+  paint-order: normal;
+}
 .seat-name {
   fill: #16324f;
   font-weight: 600;
   paint-order: stroke;
   stroke: #ffffff;
-  stroke-width: 0.35;
+  stroke-width: 0.22;
   stroke-linejoin: round;
   pointer-events: none;
 }
@@ -341,7 +360,7 @@ button.mini {
 
 /* ---- inspector ---------------------------------------------------- */
 .inspector {
-  width: 300px;
+  width: 380px;
   flex-shrink: 0;
   background: var(--panel);
   border-left: 1px solid var(--line);
@@ -459,13 +478,56 @@ button.mini {
 .guest-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 5px;
+  border-radius: 6px;
+}
+.guest-row.row-top {
+  background: #ecfdf5;
+}
+.guest-row.row-bot {
+  background: #fff7ed;
+}
+.row-tag {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  line-height: 13px;
+  text-align: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: #fff;
+  border-radius: 3px;
+}
+.row-tag.is-top {
+  background: #10b981;
+}
+.row-tag.is-bot {
+  background: #f59e0b;
+}
+.guest-row.is-dragging {
+  position: relative;
+  z-index: 20;
+  background: #eef3fd;
+  box-shadow: 0 2px 8px rgba(31, 111, 235, 0.35);
+  outline: 1px solid var(--accent);
+}
+.seat-move {
+  flex: 0 0 auto;
+  cursor: grab;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1;
+  user-select: none;
+}
+.seat-move:active {
+  cursor: grabbing;
 }
 .guest-num {
-  flex: 0 0 20px;
+  flex: 0 0 16px;
   text-align: right;
   font-size: 11px;
+  font-weight: 600;
   color: var(--muted);
 }
 .guest-row input {
@@ -603,14 +665,34 @@ button.mini {
   margin: 0;
   padding: 0;
 }
+.guestmgr-rels {
+  padding-left: 4px;
+}
+.guestmgr-relgroup {
+  margin-bottom: 2px;
+}
+.guestmgr-reltoggle {
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 3px 0;
+}
+.guestmgr-reltoggle:hover {
+  color: var(--accent);
+}
+.guestmgr-list {
+  padding-left: 10px;
+}
+
 .guestmgr-row {
   display: grid;
-  grid-template-columns: 1fr 0.85fr 4.2em auto;
+  grid-template-columns: 1fr 0.7fr 5.6em 14px;
   gap: 4px;
   align-items: center;
   padding: 2px 0;
 }
-.guestmgr-row input {
+.guestmgr-row input,
+.guestmgr-row select {
   font: inherit;
   font-size: 11px;
   padding: 3px 4px;
@@ -621,16 +703,11 @@ button.mini {
 .guestmgr-row .g-rel {
   color: var(--muted);
 }
-.guestmgr-row .g-table {
-  font-size: 10px;
-  font-weight: 600;
+.guestmgr-row .g-table-sel {
   color: #2a5db0;
-  text-align: right;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 600;
 }
-.guestmgr-row .g-table.is-unseated {
+.guestmgr-row .g-table-sel.is-unseated {
   color: var(--muted);
   font-weight: 400;
 }
@@ -737,4 +814,61 @@ button.mini {
   padding: 8px 6px;
   color: var(--muted);
   font-size: 11px;
+}
+.swap-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.swap-row select {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 11px;
+  padding: 4px 5px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.rel-fill {
+  margin-top: 10px;
+}
+.rel-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  margin-top: 6px;
+}
+.rel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  background: #eef3fd;
+  color: #2a5db0;
+  border: 1px solid #cfe0ff;
+  border-radius: 999px;
+  padding: 2px 4px 2px 7px;
+}
+.rel-chip button {
+  border: none;
+  background: none;
+  color: #2a5db0;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+}
+.rel-chip.rel-bride {
+  background: #fbeef4;
+  color: #a24d75;
+  border-color: #eecfdf;
+}
+.rel-chip.rel-bride button {
+  color: #a24d75;
+}
+.rel-chip.rel-groom {
+  background: #eef3fd;
+  color: #2a5db0;
+  border-color: #cfe0ff;
 }

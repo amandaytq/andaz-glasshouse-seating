@@ -16,20 +16,26 @@
 // y down), so 1 unit here == 1 pt in the PDF == 1/72 inch on an A4 printout.
 // -----------------------------------------------------------------------------
 
-// A4 landscape page, in points (matches the PDF MediaBox).
-export const PAGE = { w: 842, h: 596 };
+// Uniform zoom baked into every canvas measurement (page, image, scale, ticks).
+// Bump this to render the whole plan larger while keeping every position and
+// size proportional. 1 = the true A4 page in points.
+export const CANVAS_SCALE = 2;
+const S = CANVAS_SCALE;
+
+// A4 landscape page, in points (matches the PDF MediaBox) x CANVAS_SCALE.
+export const PAGE = { w: 842 * S, h: 596 * S };
 
 // Where the PDF paints the plan image on that page (derived from the content
 // stream: translate 58.72, scale 0.523958/0.523136, image 1607x778, +8 pt page
 // offset). Width spans the full page; height keeps the image's aspect ratio.
-export const PLAN_IMAGE = { x: 0, y: 66.72, w: 842, h: 407.0 };
+export const PLAN_IMAGE = { x: 0, y: 66.72 * S, w: 842 * S, h: 407.0 * S };
 
 // Pixels of the source image per point on the page.
-export const IMG_PX_PER_PT = 1607 / PLAN_IMAGE.w; // ~1.9083
+export const IMG_PX_PER_PT = 1607 / PLAN_IMAGE.w;
 
-// Real-world scale: points on the page per foot (from the PDF scale bar).
-export const PT_PER_FOOT = 5.2;
-export const IMG_PX_PER_FOOT = PT_PER_FOOT * IMG_PX_PER_PT; // ~9.733
+// Real-world scale: points on the page per foot (from the PDF scale bar) x scale.
+export const PT_PER_FOOT = 5.2 * S;
+export const IMG_PX_PER_FOOT = PT_PER_FOOT * IMG_PX_PER_PT;
 
 // Interior top-left corner of the main hall, measured on the source image
 // (~30, 34 px), expressed in page points.
@@ -54,7 +60,7 @@ export function ptToFeet(xPt, yPt) {
 }
 
 // Scale bar exactly where the PDF draws it (content-stream y 470 + 8 pt offset).
-export const SCALE_BAR = { x: 8, y: 478, lengthFt: 10 };
+export const SCALE_BAR = { x: 8 * S, y: 478 * S, lengthFt: 10 };
 
 // Vector trace of the MAIN HALL — the area the tables occupy — in feet
 // (room-origin space), taken off the blueprint image against the scale bar.

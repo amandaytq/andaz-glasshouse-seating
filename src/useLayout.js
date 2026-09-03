@@ -29,6 +29,7 @@ function normalizeItem(item) {
   if (next.diameterFt == null) next = { ...next, diameterFt: DEFAULT_ROUND_DIAMETER_FT }
   if (next.kind === 'table' && !Array.isArray(next.seatNames)) next = { ...next, seatNames: [] }
   if (next.kind === 'table' && !Array.isArray(next.babySeats)) next = { ...next, babySeats: [] }
+  if (next.kind === 'table' && !Array.isArray(next.relations)) next = { ...next, relations: [] }
 
   if (next.kind === 'table' && next.shape === 'rect') {
     const patch = {}
@@ -44,14 +45,15 @@ function normalizeItem(item) {
 
 function normalizeGuest(g, i) {
   const rsvp = String(g?.rsvp ?? 'yes').toLowerCase()
-  return {
+  const out = {
     id: g?.id || `g-${Date.now().toString(36)}-${i}-${Math.random().toString(36).slice(2, 5)}`,
     name: String(g?.name ?? '').trim(),
     side: g?.side === 'bride' ? 'bride' : 'groom',
     relation: String(g?.relation ?? '').trim(),
-    group: String(g?.group ?? '').trim(),
     rsvp: ['yes', 'no', 'pending', 'baby'].includes(rsvp) ? rsvp : 'yes',
   }
+  if (g?.role === 'bride' || g?.role === 'groom') out.role = g.role // the couple
+  return out
 }
 
 // Keep every guest name unique (seats reference guests by name).
@@ -346,6 +348,149 @@ export function useLayout() {
     [commit],
   )
 
+  // Tag a table with a set of guest `relations` and drop every not-yet-seated
+  // guest of those relations into the table's free seats (guest-list order).
+  // Guests who already have a seat anywhere are left where they are.
+  const fillTableByRelations = useCallback(
+    (itemId, relations) => {
+      commit((prev) => {
+        const table = prev.items.find((i) => i.id === itemId)
+        if (!table || table.kind !== 'table') return prev
+        const pax = Math.max(0, Math.round(Number(table.pax) || 0))
+        const rels = [...new Set((relations || []).filter(Boolean))]
+
+        const seatedNames = new Set()
+        for (const it of prev.items) {
+          if (it.kind !== 'table') continue
+          for (const n of it.seatNames || []) if (n) seatedNames.add(n)
+        }
+
+        const seats = (table.seatNames || []).slice(0, pax)
+        while (seats.length < pax) seats.push('')
+
+        // each tag is "bride::Relative" / "groom::IBM"; bare = either side
+        const specs = rels.map((r) => {
+          const i = r.indexOf('::')
+          return i >= 0
+            ? { side: r.slice(0, i), relation: r.slice(i + 2) }
+            : { side: null, relation: r }
+        })
+        const wanted = (prev.guests || []).filter(
+          (g) =>
+            g.name &&
+            !seatedNames.has(g.name) &&
+            specs.some((sp) => sp.relation === g.relation && (!sp.side || sp.side === g.side)),
+        )
+        let gi = 0
+        for (let s = 0; s < pax && gi < wanted.length; s++) {
+          if (!seats[s]) {
+            seats[s] = wanted[gi++].name
+            seatedNames.add(seats[s])
+          }
+        }
+        while (seats.length && !seats[seats.length - 1]) seats.pop()
+
+        return {
+          ...prev,
+          items: prev.items.map((it) =>
+            it.id === itemId ? { ...it, seatNames: seats, relations: rels } : it,
+          ),
+        }
+      })
+    },
+    [commit],
+  )
+
+  // Seat a guest at the first free seat of `tableId` (or unseat them if tableId
+  // is falsy). The guest is removed from any other seat first. No-op if the
+  // target table is full.
+  const seatGuestAtTable = useCallback(
+    (name, tableId) => {
+      if (!name) return
+      commit((prev) => {
+        if (tableId) {
+          const t = prev.items.find((i) => i.id === tableId)
+          if (!t || t.kind !== 'table') return prev
+          const pax = Math.max(0, Math.round(Number(t.pax) || 0))
+          const cur = (Array.isArray(t.seatNames) ? t.seatNames : []).slice(0, pax)
+          if (!cur.includes(name) && cur.filter(Boolean).length >= pax) return prev // full
+        }
+        let changed = false
+        const items = prev.items.map((it) => {
+          if (it.kind !== 'table') return it
+          let seats = Array.isArray(it.seatNames) ? it.seatNames.slice() : []
+          const before = seats.join(' ')
+          seats = seats.map((n) => (n === name ? '' : n))
+          if (tableId && it.id === tableId) {
+            const pax = Math.max(0, Math.round(Number(it.pax) || 0))
+            while (seats.length < pax) seats.push('')
+            const free = seats.findIndex((n, idx) => idx < pax && !n)
+            if (free > -1) seats[free] = name
+          }
+          while (seats.length && !seats[seats.length - 1]) seats.pop()
+          if (seats.join(' ') !== before) {
+            changed = true
+            return { ...it, seatNames: seats }
+          }
+          return it
+        })
+        return changed ? { ...prev, items } : prev
+      })
+    },
+    [commit],
+  )
+
+  // Move seat `from` to position `to` within one table; the rest shift and every
+  // seat is renumbered by its new index. Baby-seat flags move with their row.
+  const reorderSeats = useCallback(
+    (tableId, from, to) => {
+      if (from === to) return
+      commit((prev) => ({
+        ...prev,
+        items: prev.items.map((it) => {
+          if (it.id !== tableId || it.kind !== 'table') return it
+          const pax = Math.max(0, Math.round(Number(it.pax) || 0))
+          if (from < 0 || from >= pax || to < 0 || to >= pax) return it
+          const babySet = new Set(Array.isArray(it.babySeats) ? it.babySeats : [])
+          const rows = Array.from({ length: pax }, (_, i) => ({
+            name: (it.seatNames || [])[i] || '',
+            baby: babySet.has(i),
+          }))
+          const [moved] = rows.splice(from, 1)
+          rows.splice(to, 0, moved)
+          const seatNames = rows.map((r) => r.name)
+          while (seatNames.length && !seatNames[seatNames.length - 1]) seatNames.pop()
+          const babySeats = rows.map((r, i) => (r.baby ? i : -1)).filter((i) => i >= 0)
+          return { ...it, seatNames, babySeats }
+        }),
+      }))
+    },
+    [commit],
+  )
+
+  // Swap every seat assignment (and baby-seat flags) between two tables.
+  const swapTableSeats = useCallback(
+    (aId, bId) => {
+      if (!aId || !bId || aId === bId) return
+      commit((prev) => {
+        const a = prev.items.find((i) => i.id === aId)
+        const b = prev.items.find((i) => i.id === bId)
+        if (!a || !b) return prev
+        return {
+          ...prev,
+          items: prev.items.map((it) => {
+            if (it.id === aId)
+              return { ...it, seatNames: [...(b.seatNames || [])], babySeats: [...(b.babySeats || [])] }
+            if (it.id === bId)
+              return { ...it, seatNames: [...(a.seatNames || [])], babySeats: [...(a.babySeats || [])] }
+            return it
+          }),
+        }
+      })
+    },
+    [commit],
+  )
+
   // Reset asks the server to restore the blueprint so everyone gets it.
   const resetLayout = useCallback(async () => {
     try {
@@ -381,6 +526,10 @@ export function useLayout() {
       })),
     updateItem,
     assignSeat,
+    seatGuestAtTable,
+    reorderSeats,
+    swapTableSeats,
+    fillTableByRelations,
     addItem,
     removeItem,
     duplicateItem,

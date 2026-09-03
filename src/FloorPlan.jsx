@@ -4,6 +4,7 @@ import {
   PLAN_IMAGE,
   PT_PER_FOOT,
   SCALE_BAR,
+  CANVAS_SCALE,
   feetToPt,
   ptToFeet,
   outlinePath,
@@ -30,6 +31,7 @@ export function FloorPlan({
   selectedId,
   locked,
   sideByName,
+  roleByName,
   onSelect,
   onMoveItem,
   onDragStart,
@@ -44,6 +46,14 @@ export function FloorPlan({
 }) {
   const svgRef = useRef(null);
   const drag = useRef(null);
+
+  const handleSeatPointerDown = useCallback(
+    (e, tableId, index) => {
+      e.stopPropagation();
+      onSeatClick?.(tableId, index);
+    },
+    [onSeatClick],
+  );
 
   const handlePointerDown = useCallback(
     (e, item) => {
@@ -146,8 +156,9 @@ export function FloorPlan({
                 showSeats={showSeats}
                 showNames={showNames}
                 sideByName={sideByName}
+                roleByName={roleByName}
                 onPointerDown={handlePointerDown}
-                onSeatClick={onSeatClick}
+                onSeatPointerDown={handleSeatPointerDown}
               />
             </g>
           );
@@ -206,12 +217,13 @@ function Grid() {
 function ScaleBar() {
   const len = SCALE_BAR.lengthFt * PT_PER_FOOT;
   const { x, y } = SCALE_BAR;
+  const t = 3 * CANVAS_SCALE; // tick half-height
   return (
     <g className="scale-bar" pointerEvents="none">
       <line x1={x} y1={y} x2={x + len} y2={y} />
-      <line x1={x} y1={y - 3} x2={x} y2={y + 3} />
-      <line x1={x + len} y1={y - 3} x2={x + len} y2={y + 3} />
-      <text x={x} y={y - 5}>
+      <line x1={x} y1={y - t} x2={x} y2={y + t} />
+      <line x1={x + len} y1={y - t} x2={x + len} y2={y + t} />
+      <text x={x} y={y - t - 2 * CANVAS_SCALE}>
         {SCALE_BAR.lengthFt} Feet
       </text>
     </g>

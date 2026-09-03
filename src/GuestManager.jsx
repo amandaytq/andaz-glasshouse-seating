@@ -57,8 +57,9 @@ function downloadCsv(text, filename) {
 }
 
 // Parse a pasted block, one guest per line, columns separated by TAB (or 2+
-// spaces):  Name  <TAB>  Relation  <TAB>  Group  <TAB>  Attendance
-// Only the first column is required; the rest are optional.
+// spaces):  Name  <TAB>  Relation  <TAB>  [Group]  <TAB>  Attendance
+// Only the first column is required; the rest are optional. The Group column, if
+// present, is ignored.
 export function parseGuestPaste(text, side) {
   const rows = []
   for (const raw of String(text).split(/\r?\n/)) {
@@ -69,8 +70,7 @@ export function parseGuestPaste(text, side) {
     const name = parts[0]
     if (!name) continue
     const relation = parts[1] || ''
-    const group = parts[2] || ''
-    const att = (parts[3] || '').toLowerCase()
+    const att = (parts[3] || parts[2] || '').toLowerCase()
     const rsvp =
       att.includes('baby') || /\bbaby$/i.test(name)
         ? 'baby'
@@ -79,7 +79,7 @@ export function parseGuestPaste(text, side) {
           : att === 'no'
             ? 'no'
             : 'yes'
-    rows.push({ id: newId(), name, side, relation, group, rsvp })
+    rows.push({ id: newId(), name, side, relation, rsvp })
   }
   return rows
 }
@@ -101,11 +101,11 @@ export function mergeGuests(existing, incoming) {
   return [...existing, ...added]
 }
 
-export function GuestManager({ guests, onChange, seatedNames }) {
+export function GuestManager({ guests, onChange, seatedNames, tables = [], onSeatGuest }) {
   const [q, setQ] = useState('')
   const [pasteSide, setPasteSide] = useState(null) // 'bride' | 'groom' | null
   const [pasteText, setPasteText] = useState('')
-  const [collapsed, setCollapsed] = useState({}) // { bride: true, groom: true }
+  const [collapsed, setCollapsed] = useState({ __rel: true }) // side keys + "side::relation" keys
   const toggle = (key) => setCollapsed((c) => ({ ...c, [key]: !c[key] }))
 
   const filtered = useMemo(() => {
@@ -116,12 +116,66 @@ export function GuestManager({ guests, onChange, seatedNames }) {
   }, [guests, q])
 
   const bySide = (side) => filtered.filter((g) => g.side === side)
-  const countSide = (side) => guests.filter((g) => g.side === side).length
+  const sideStats = (side) => {
+    const all = guests.filter((g) => g.side === side)
+    return { total: all.length, seated: all.filter((g) => seatedNames?.has(g.name)).length }
+  }
+
+  // guests of a side, grouped into { relation, items } sorted by relation
+  const relationGroups = (side) => {
+    const map = new Map()
+    for (const g of bySide(side)) {
+      const r = g.relation || '(no relation)'
+      if (!map.has(r)) map.set(r, [])
+      map.get(r).push(g)
+    }
+    return [...map.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([relation, items]) => ({ relation, items }))
+  }
 
   const update = (id, patch) => onChange(guests.map((g) => (g.id === id ? { ...g, ...patch } : g)))
   const remove = (id) => onChange(guests.filter((g) => g.id !== id))
-  const add = (side) =>
-    onChange([...guests, { id: newId(), name: '', side, relation: '', group: '', rsvp: 'yes' }])
+
+  const renderRow = (g) => {
+    const seatedAt = seatedNames?.get(g.name)
+    return (
+      <li key={g.id} className="guestmgr-row">
+        <input
+          className="g-name"
+          value={g.name}
+          placeholder="name"
+          onChange={(e) => update(g.id, { name: e.target.value })}
+        />
+        <input
+          className="g-rel"
+          value={g.relation}
+          placeholder="relation"
+          onChange={(e) => update(g.id, { relation: e.target.value })}
+        />
+        <select
+          className={`g-table-sel${seatedAt ? '' : ' is-unseated'}`}
+          value={seatedAt?.tableId || ''}
+          title={seatedAt ? seatedAt.label : 'not seated'}
+          onChange={(e) => onSeatGuest?.(g.name, e.target.value)}
+        >
+          <option value="">— unseated —</option>
+          {tables.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+        </select>
+        <button className="g-del" onClick={() => remove(g.id)} title="remove">
+          ×
+        </button>
+      </li>
+    )
+  }
+  const add = (side) => {
+    setCollapsed((c) => ({ ...c, [side]: false, [`${side}::(no relation)`]: false }))
+    onChange([...guests, { id: newId(), name: '', side, relation: '', rsvp: 'yes' }])
+  }
 
   const doPaste = () => {
     const rows = parseGuestPaste(pasteText, pasteSide)
@@ -180,7 +234,10 @@ export function GuestManager({ guests, onChange, seatedNames }) {
               aria-expanded={isOpen}
             >
               <span className="chev">{isOpen ? '▾' : '▸'}</span>
-              {label} <span className="field-hint">({countSide(key)})</span>
+              {label}{' '}
+              <span className="field-hint">
+                ({sideStats(key).seated} / {sideStats(key).total} seated)
+              </span>
             </button>
             <span>
               <button className="mini" onClick={() => add(key)}>
@@ -196,7 +253,7 @@ export function GuestManager({ guests, onChange, seatedNames }) {
             <div className="guestmgr-paste">
               <textarea
                 rows={5}
-                placeholder={'Name<tab>Relation<tab>Group<tab>Yes/Pending/Baby\none guest per line'}
+                placeholder={'Name<tab>Relation<tab>Yes/Pending/Baby\none guest per line'}
                 value={pasteText}
                 onChange={(e) => setPasteText(e.target.value)}
               />
@@ -217,37 +274,26 @@ export function GuestManager({ guests, onChange, seatedNames }) {
           )}
 
           {isOpen && (
-          <ul className="guestmgr-list">
-            {bySide(key).map((g) => {
-              const seatedAt = seatedNames?.get(g.name)
-              return (
-                <li key={g.id} className="guestmgr-row">
-                  <input
-                    className="g-name"
-                    value={g.name}
-                    placeholder="name"
-                    onChange={(e) => update(g.id, { name: e.target.value })}
-                  />
-                  <input
-                    className="g-rel"
-                    value={g.relation}
-                    placeholder="relation"
-                    onChange={(e) => update(g.id, { relation: e.target.value })}
-                  />
-                  <span
-                    className={`g-table${seatedAt ? '' : ' is-unseated'}`}
-                    title={seatedAt ? seatedAt.label : 'not seated'}
-                  >
-                    {seatedAt ? seatedAt.table : '—'}
-                  </span>
-                  <button className="g-del" onClick={() => remove(g.id)} title="remove">
-                    ×
-                  </button>
-                </li>
-              )
-            })}
-            {bySide(key).length === 0 && <li className="guestmgr-empty">none</li>}
-          </ul>
+            <div className="guestmgr-rels">
+              {relationGroups(key).map(({ relation, items }) => {
+                const rkey = `${key}::${relation}`
+                const rOpen = !collapsed[rkey] || !!q.trim()
+                return (
+                  <div key={rkey} className="guestmgr-relgroup">
+                    <button
+                      className="guestmgr-toggle guestmgr-reltoggle"
+                      onClick={() => toggle(rkey)}
+                      aria-expanded={rOpen}
+                    >
+                      <span className="chev">{rOpen ? '▾' : '▸'}</span>
+                      {relation} <span className="field-hint">({items.length})</span>
+                    </button>
+                    {rOpen && <ul className="guestmgr-list">{items.map(renderRow)}</ul>}
+                  </div>
+                )
+              })}
+              {bySide(key).length === 0 && <div className="guestmgr-empty">none</div>}
+            </div>
           )}
         </section>
         )

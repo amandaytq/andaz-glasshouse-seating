@@ -19,6 +19,10 @@ export default function App() {
     setLayoutView,
     setGuestList,
     assignSeat,
+    seatGuestAtTable,
+    reorderSeats,
+    swapTableSeats,
+    fillTableByRelations,
     undo,
     redo,
     beginTransient,
@@ -41,7 +45,7 @@ export default function App() {
       /* ignore */
     }
   }, [locked])
-  const [zoom, setZoom] = useState(2)
+  const [zoom, setZoom] = useState(1)
   const [showSeats, setShowSeats] = useState(true)
   const [showNames, setShowNames] = useState(true)
   const [underlayOpacity, setUnderlayOpacity] = useState(1)
@@ -73,14 +77,27 @@ export default function App() {
     return m
   }, [guests])
 
+  // name -> 'bride' | 'groom'  for the couple only (special seat styling)
+  const roleByName = useMemo(() => {
+    const m = new Map()
+    for (const g of guests) if (g.name && g.role) m.set(g.name, g.role)
+    return m
+  }, [guests])
+
   // name -> { table, seat, label }  (first seat that guest is assigned to)
   const seatedIndex = useMemo(() => {
     const m = new Map()
     for (const it of layout?.items ?? []) {
       if (it.kind !== 'table' || !Array.isArray(it.seatNames)) continue
-      it.seatNames.forEach((n, i) => {
+      const pax = Math.max(0, Math.round(Number(it.pax) || 0))
+      it.seatNames.slice(0, pax).forEach((n, i) => {
         if (n && !m.has(n)) {
-          m.set(n, { table: it.name, seat: i + 1, label: `${it.name} · seat ${i + 1}` })
+          m.set(n, {
+            tableId: it.id,
+            table: it.name,
+            seat: i + 1,
+            label: `${it.name} · seat ${i + 1}`,
+          })
         }
       })
     }
@@ -347,6 +364,7 @@ export default function App() {
           selectedId={selectedId}
           locked={locked}
           sideByName={sideByName}
+          roleByName={roleByName}
           onSelect={selectItem}
           onSeatClick={handleSeatClick}
           onMoveItem={(id, patch) => updateItem(id, patch, { record: false })}
@@ -367,6 +385,11 @@ export default function App() {
           onGuestsChange={setGuestList}
           seatedIndex={seatedIndex}
           onAssignSeat={assignSeat}
+          onReorderSeat={reorderSeats}
+          onSeatGuest={seatGuestAtTable}
+          tables={layout.items.filter((it) => it.kind === 'table').map((it) => ({ id: it.id, name: it.name }))}
+          onSwapSeats={swapTableSeats}
+          onFillByRelation={fillTableByRelations}
           onChange={updateItem}
           onDuplicate={(id) => {
             const nid = duplicateItem(id)
