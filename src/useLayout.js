@@ -34,7 +34,8 @@ function normalizeItem(item) {
   if (next.kind === 'table' && next.shape === 'rect') {
     const patch = {}
     if (next.widthFt !== DEFAULT_TABLE_HEIGHT_FT) patch.widthFt = DEFAULT_TABLE_HEIGHT_FT
-    const len = lengthFromPax(next.pax)
+    // `lockLength` tables keep their explicit length (e.g. the matched VIP pair)
+    const len = next.lockLength && next.lengthFt > 0 ? next.lengthFt : lengthFromPax(next.pax)
     if (len !== next.lengthFt) patch.lengthFt = len
     if (Object.keys(patch).length) next = { ...next, ...patch }
   } else if (next.widthFt == null) {

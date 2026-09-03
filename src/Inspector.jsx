@@ -361,7 +361,7 @@ export function Inspector({
               />
               {paxDriven && (
                 <span className="field-hint">
-                  length auto-sizes to {lengthFromPax(item.pax)} ft (1 ft / pax)
+                  length auto-sizes to {lengthFromPax(item.pax)} ft (~1 ft/pax, rounded up to 3 ft)
                 </span>
               )}
             </label>

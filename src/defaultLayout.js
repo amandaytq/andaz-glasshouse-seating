@@ -31,13 +31,18 @@ export const TABLE_WIDTH_FT = DEFAULT_TABLE_HEIGHT_FT;
 export const PAX_PER_FOOT = 1; // long banquet table, seats both sides
 export const FT_PER_PAX = 1 / PAX_PER_FOOT;
 export const MIN_TABLE_LENGTH_FT = 3;
+export const LENGTH_STEP_FT = 3; // table length is always a multiple of this
 
 export function paxFromLength(lengthFt) {
   return Math.max(0, Math.round(lengthFt * PAX_PER_FOOT));
 }
+// Length derived from pax (~1 ft/pax), then rounded UP to the next 3 ft.
 export function lengthFromPax(pax) {
-  const raw = Math.max(0, Number(pax) || 0) * FT_PER_PAX;
-  return Math.round(Math.max(MIN_TABLE_LENGTH_FT, raw) * 100) / 100;
+  const raw = Math.max(
+    MIN_TABLE_LENGTH_FT,
+    Math.max(0, Number(pax) || 0) * FT_PER_PAX,
+  );
+  return Math.ceil(raw / LENGTH_STEP_FT) * LENGTH_STEP_FT;
 }
 
 let uid = 0;
@@ -94,8 +99,22 @@ export function buildDefaultLayout() {
     // Master guest list, split by side. Each: { id, name, side, relation, rsvp }.
     // Seats reference guests by name (item.seatNames[i]).
     guests: [
-      { id: "g-bride", name: "Amanda", side: "bride", role: "bride", relation: "Bride", rsvp: "yes" },
-      { id: "g-groom", name: "Jeremiah", side: "groom", role: "groom", relation: "Groom", rsvp: "yes" },
+      {
+        id: "g-bride",
+        name: "Amanda",
+        side: "bride",
+        role: "bride",
+        relation: "Bride",
+        rsvp: "yes",
+      },
+      {
+        id: "g-groom",
+        name: "Jeremiah",
+        side: "groom",
+        role: "groom",
+        relation: "Groom",
+        rsvp: "yes",
+      },
       ...BRIDE_GUESTS.map((g, i) => ({ id: `g-b${i + 1}`, ...g })),
       ...GROOM_GUESTS.map((g, i) => ({ id: `g-g${i + 1}`, ...g })),
     ],
@@ -154,20 +173,28 @@ export function buildDefaultLayout() {
       },
 
       // ---- Top half (above the aisle) --------------------------------
-      rectTable("VIP2", 30.0, 25.5, 8, 9.5),
-      rectTable("Table 7", 57.5, 25.5, 36),
+      // Both VIP tables are always drawn at a 12-pax length (a matching pair),
+      // regardless of how many people sit there. `lockLength` keeps normalizeItem
+      // from resetting it to the pax-derived value.
+      rectTable("VIP2", 30.0, 25.5, 8, {
+        lengthFt: lengthFromPax(12), // VIP tables are always 12-pax length
+        lockLength: true,
+      }),
+      rectTable("Table 7", 57.5, 25.5, 30),
       rectTable("Table 8", 60, 15, 24),
       rectTable("Table 9", 32.5, 15, 24),
-      rectTable("Table 10", 47.4, 5.5, 20),
+      rectTable("Table 10", 47.4, 5.5, 24),
 
       // ---- Bottom half (below the aisle) ----------------------------
-      rectTable("VIP1", 30.0, 41, 10, {
-        seatNames: ["", "Amanda", "", "Jeremiah"], // couple: seat 2 & seat 4
+      rectTable("VIP1", 30.0, 41, 12, {
+        seatNames: ["", "", "", "", "", "Amanda", "Jeremiah"], // seat 6 & 7
+        lengthFt: lengthFromPax(12), // VIP tables are always 12-pax length
+        lockLength: true,
       }),
-      rectTable("Table 3", 57.5, 41, 36),
+      rectTable("Table 3", 57.5, 41, 30),
       rectTable("Table 4", 32.5, 53, 24),
       rectTable("Table 5", 60, 53, 24),
-      rectTable("Table 6", 47.4, 63.5, 20),
+      rectTable("Table 6", 47.4, 63.5, 24),
     ],
   };
 }

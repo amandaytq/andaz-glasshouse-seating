@@ -7,35 +7,30 @@ export const GROOM_GUESTS = [
     name: "Jonathan",
     side: "groom",
     relation: "Brother",
-   
     rsvp: "yes",
   },
   {
     name: "Christine",
     side: "groom",
     relation: "Sister",
-   
     rsvp: "yes",
   },
   {
     name: "Ivan",
     side: "groom",
     relation: "Brother-in-law",
-   
     rsvp: "yes",
   },
   {
     name: "Joel Loong",
     side: "groom",
     relation: "Secondary Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Khertan",
     side: "groom",
     relation: "Secondary Friend",
-   
     rsvp: "yes",
   },
   { name: "Shan", side: "groom", relation: "Friend", rsvp: "yes" },
@@ -43,147 +38,126 @@ export const GROOM_GUESTS = [
     name: "Matthew",
     side: "groom",
     relation: "Secondary Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Keane",
     side: "groom",
     relation: "Secondary Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Sze Yee",
     side: "groom",
     relation: "Secondary Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Willis",
     side: "groom",
     relation: "Secondary Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Jacky",
     side: "groom",
     relation: "Secondary Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Jun Jie",
     side: "groom",
     relation: "Secondary Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Shamaine",
     side: "groom",
     relation: "Secondary Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Belinda",
     side: "groom",
     relation: "Secondary Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Kyra",
     side: "groom",
     relation: "Drinking Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Vivien",
     side: "groom",
     relation: "Drinking Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Jonathan (Viv + 1)",
     side: "groom",
     relation: "Drinking Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Deepag",
     side: "groom",
     relation: "Uni Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Zhen Yu",
     side: "groom",
     relation: "Uni Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Edmund",
     side: "groom",
     relation: "Uni Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Serene",
     side: "groom",
     relation: "Uni Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Kai Wei",
     side: "groom",
     relation: "Uni Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Hao Jun",
     side: "groom",
     relation: "JC Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Xing Ao",
     side: "groom",
     relation: "JC Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Shoshanna",
     side: "groom",
     relation: "JC Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Kenny",
     side: "groom",
     relation: "JC Friend + 1",
-   
     rsvp: "yes",
   },
   {
     name: "Sheryl Toh",
     side: "groom",
     relation: "JC Friend",
-   
     rsvp: "yes",
   },
   { name: "Jon", side: "groom", relation: "JC Friend", rsvp: "yes" },
@@ -191,42 +165,36 @@ export const GROOM_GUESTS = [
     name: "Cheryl Tan",
     side: "groom",
     relation: "JC Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Jordan",
     side: "groom",
     relation: "JC Friend + 1",
-   
     rsvp: "yes",
   },
   {
     name: "Joel Yeo",
     side: "groom",
     relation: "Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Sarah",
     side: "groom",
     relation: "Friend + 1",
-   
     rsvp: "yes",
   },
   {
     name: "Teng Liang",
     side: "groom",
     relation: "Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Jia Hang",
     side: "groom",
     relation: "Uni Friend",
-   
     rsvp: "yes",
   },
   { name: "Renny", side: "groom", relation: "NCS", rsvp: "yes" },
@@ -238,126 +206,108 @@ export const GROOM_GUESTS = [
     name: "Joel Yeo (NCS)",
     side: "groom",
     relation: "NCS",
-   
     rsvp: "yes",
   },
   {
     name: "Anshu",
     side: "groom",
     relation: "JC Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Jun Hui",
     side: "groom",
     relation: "JC Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Ai Xin yiyi",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Wen Ann",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Wen Xi",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Ah Yue yiyi",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Ah Yue yiyi husband",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Jia Jia",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Jiu Jiu",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Ji Xun",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Nga Siew Wah",
     side: "groom",
     relation: "Mummy Cousin",
-   
     rsvp: "yes",
   },
   {
     name: "Yeo Teck Beng",
     side: "groom",
     relation: "Mummy Cousin",
-   
     rsvp: "yes",
   },
   {
     name: "Nga Siew Kee",
     side: "groom",
     relation: "Mummy Cousin",
-   
     rsvp: "yes",
   },
   {
     name: "Lim Lian Kang",
     side: "groom",
     relation: "Mummy Cousin",
-   
     rsvp: "yes",
   },
   {
     name: "Sis Mother-in-law",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Aunt Catherine",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Uncle Phillip",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   { name: "Gwen", side: "groom", relation: "Relative", rsvp: "yes" },
@@ -365,197 +315,170 @@ export const GROOM_GUESTS = [
     name: "Gwen Husband",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Gwen Baby",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "baby",
   },
   { name: "Mark", side: "groom", relation: "Relative", rsvp: "yes" },
+  { name: "Mark Baby", side: "groom", relation: "Relative", rsvp: "baby" },
   {
     name: "Mark's wife",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Benjamin (Relative)",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Uncle Patrick",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Uncle Patrick Wife",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Aunt Claire",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Uncle Mike",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Joshua",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Marilynn",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Sherlynn",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Sherlynn Husband",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Sherlynn Kid",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Uncle Peter",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Adrian",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Boon Hui (Adrian Wife)",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Gabriel",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "James",
     side: "groom",
     relation: "Relative",
-   
     rsvp: "yes",
   },
   {
     name: "Paul Leow",
     side: "groom",
     relation: "Dad's Friend",
-   
     rsvp: "yes",
   },
   {
     name: "George Ignatius Paul",
     side: "groom",
     relation: "Dad's Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Francis Fam",
     side: "groom",
     relation: "Dad's Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Francis Fam + 1",
     side: "groom",
     relation: "Dad's Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Arthur Tan",
     side: "groom",
     relation: "Dad's Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Arthur Tan +1",
     side: "groom",
     relation: "Dad's Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Martin Gaspar",
     side: "groom",
     relation: "Dad's Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Kevin Ting",
     side: "groom",
     relation: "Dad's Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Christopher Lim",
     side: "groom",
     relation: "Dad's Friend",
-   
     rsvp: "yes",
   },
   {
     name: "Kumar",
     side: "groom",
     relation: "Dad's Friend",
-   
     rsvp: "yes",
   },
 ];
