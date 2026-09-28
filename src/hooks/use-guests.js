@@ -132,6 +132,67 @@ export function useGuests() {
     [flushRow],
   )
 
+  // Save several guests' seat changes as one coordinated, immediate (not
+  // debounced) operation — used by reorderSeats/swapTableSeats/
+  // fillTableByRelations, where multiple rows change tableId/seatIndex at
+  // once. Writing them independently (even in parallel) is unsafe: each
+  // write's server-side "bump whoever else is in this seat" check reads
+  // whatever's currently in DynamoDB, so if guest A's write claims a seat
+  // guest B hasn't vacated *yet* (B's own write just hasn't landed), the
+  // server bumps B — and if that bump write happens to land *after* B's own
+  // correct-target write already completed, it silently un-seats B with no
+  // client-side signal anything went wrong (this is what caused "the seat
+  // got emptied" when dragging to reorder). Doing it in two AWAITED phases
+  // — vacate everyone first, then claim final positions — guarantees no
+  // guest in this batch is ever mid-flight in another one's stale seat.
+  const saveSeatChanges = useCallback(async (changeMap) => {
+    const ids = [...changeMap.keys()]
+    if (!ids.length) return
+    for (const id of ids) {
+      clearTimeout(timersRef.current.get(id))
+      dirtyRef.current.add(id)
+    }
+    setSaveState('saving')
+
+    const putRow = async (id, patch) => {
+      const base = guestsRef.current.find((g) => g.id === id)
+      if (!base) return null
+      try {
+        const res = await fetch(`${API}/${encodeURIComponent(id)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...base, ...patch }),
+        })
+        if (!res.ok) throw new Error(String(res.status))
+        return await res.json()
+      } catch {
+        return null
+      }
+    }
+
+    // Phase 1: vacate every affected seat and wait for it to be confirmed.
+    await Promise.all(ids.map((id) => putRow(id, { tableId: null, seatIndex: null })))
+    // Phase 2: claim final positions — every seat in this batch is now
+    // guaranteed empty, so none of these writes can bump each other.
+    const results = await Promise.all(
+      ids.map(async (id) => [id, await putRow(id, changeMap.get(id))]),
+    )
+
+    setGuests((prev) =>
+      prev.map((g) => {
+        const own = results.find(([id]) => id === g.id)
+        if (own && own[1]?.guest) return own[1].guest
+        // a *genuinely* separate concurrent edit could still legitimately
+        // bump someone outside this batch — respect that the normal way.
+        const bumpedBy = results.find(([, out]) => out?.bumped?.id === g.id)
+        if (bumpedBy && !dirtyRef.current.has(g.id)) return bumpedBy[1].bumped
+        return g
+      }),
+    )
+    for (const id of ids) dirtyRef.current.delete(id)
+    if (dirtyRef.current.size === 0) setSaveState('saved')
+  }, [])
+
   // ---- initial load -------------------------------------------------------
   useEffect(() => {
     let cancelled = false
@@ -407,32 +468,33 @@ export function useGuests() {
       })
       if (!changes.size) return
       setGuests((prev) => prev.map((g) => (changes.has(g.id) ? { ...g, seatIndex: changes.get(g.id) } : g)))
-      changes.forEach((_, id) => scheduleSave(id))
+      const saveMap = new Map([...changes].map(([id, seatIndex]) => [id, { tableId, seatIndex }]))
+      saveSeatChanges(saveMap)
     },
-    [scheduleSave],
+    [saveSeatChanges],
   )
 
   // Move every guest seated at table `aId` to table `bId` and vice versa.
   const swapTableSeats = useCallback(
     (aId, bId) => {
       if (!aId || !bId || aId === bId) return
-      const changedIds = []
+      const saveMap = new Map()
       const next = guestsRef.current.map((g) => {
         if (g.tableId === aId) {
-          changedIds.push(g.id)
+          saveMap.set(g.id, { tableId: bId, seatIndex: g.seatIndex })
           return { ...g, tableId: bId }
         }
         if (g.tableId === bId) {
-          changedIds.push(g.id)
+          saveMap.set(g.id, { tableId: aId, seatIndex: g.seatIndex })
           return { ...g, tableId: aId }
         }
         return g
       })
-      if (!changedIds.length) return
+      if (!saveMap.size) return
       setGuests(next)
-      changedIds.forEach(scheduleSave)
+      saveSeatChanges(saveMap)
     },
-    [scheduleSave],
+    [saveSeatChanges],
   )
 
   // Unseat everyone currently at `tableId` ("clear" in the inspector).
@@ -479,9 +541,10 @@ export function useGuests() {
       setGuests((prev) =>
         prev.map((g) => (seatOf.has(g.id) ? { ...g, tableId, seatIndex: seatOf.get(g.id) } : g)),
       )
-      seatOf.forEach((_, id) => scheduleSave(id))
+      const saveMap = new Map([...seatOf].map(([id, seatIndex]) => [id, { tableId, seatIndex }]))
+      saveSeatChanges(saveMap)
     },
-    [scheduleSave],
+    [saveSeatChanges],
   )
 
   return {
