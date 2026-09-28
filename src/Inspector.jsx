@@ -12,11 +12,15 @@ export function Inspector({
   seatFocus,
   locked,
   guests = [],
-  onGuestsChange,
+  onUpdateGuest,
+  onRemoveGuest,
+  onAddGuest,
+  onBulkAdd,
   seatedIndex,
   onAssignSeat,
   onReorderSeat,
   onSeatGuest,
+  onClearTable,
   tables = [],
   onSwapSeats,
   onFillByRelation,
@@ -97,7 +101,10 @@ export function Inspector({
         </p>
         <GuestManager
           guests={guests}
-          onChange={onGuestsChange}
+          onUpdateGuest={onUpdateGuest}
+          onRemoveGuest={onRemoveGuest}
+          onAddGuest={onAddGuest}
+          onBulkAdd={onBulkAdd}
           seatedNames={seatedIndex}
           tables={tables}
           onSeatGuest={onSeatGuest}
@@ -489,7 +496,7 @@ export function Inspector({
                 {isRect && <span className="field-hint"> · first half = top row</span>}
               </span>
               {seatNames.some(Boolean) && (
-                <button className="mini" onClick={() => set({ seatNames: [] })}>
+                <button className="mini" onClick={() => onClearTable?.(item.id)}>
                   clear
                 </button>
               )}

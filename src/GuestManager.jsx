@@ -9,8 +9,11 @@ const SIDES = [
   { key: 'groom', label: "Groom's side" },
 ]
 
-let seq = 0
-const newId = () => `g-${Date.now().toString(36)}-${++seq}-${Math.random().toString(36).slice(2, 5)}`
+// Meal preference — defaults to the standard Chinese banquet menu.
+const MEALS = ['chinese', 'vegetarian', 'halal']
+const MEAL_LABEL = { chinese: 'Chinese', vegetarian: 'Vegetarian', halal: 'Halal' }
+const MEAL_BADGE = { chinese: 'C', vegetarian: 'V', halal: 'H' }
+const nextMeal = (m) => MEALS[(MEALS.indexOf(m) + 1) % MEALS.length]
 
 const csvCell = (v) => {
   const s = String(v ?? '')
@@ -18,7 +21,7 @@ const csvCell = (v) => {
 }
 
 // One CSV, rows sorted by side then table then name.  Columns:
-// Side, Name, Relation, Table, Seat
+// Side, Name, Relation, Meal, Table, Seat
 function guestsToCsv(guests, seatedNames) {
   const rows = guests
     .map((g) => {
@@ -27,6 +30,7 @@ function guestsToCsv(guests, seatedNames) {
         side: g.side === 'bride' ? "Bride's side" : "Groom's side",
         name: g.name,
         relation: g.relation || '',
+        meal: MEAL_LABEL[g.meal] || MEAL_LABEL.chinese,
         table: at?.table || '',
         seat: at?.seat || '',
         _sk: g.side === 'bride' ? 0 : 1,
@@ -38,10 +42,10 @@ function guestsToCsv(guests, seatedNames) {
         String(a.table).localeCompare(String(b.table), undefined, { numeric: true }) ||
         a.name.localeCompare(b.name),
     )
-  const header = ['Side', 'Name', 'Relation', 'Table', 'Seat']
+  const header = ['Side', 'Name', 'Relation', 'Meal', 'Table', 'Seat']
   const lines = [header.join(',')]
   for (const r of rows) {
-    lines.push([r.side, r.name, r.relation, r.table, r.seat].map(csvCell).join(','))
+    lines.push([r.side, r.name, r.relation, r.meal, r.table, r.seat].map(csvCell).join(','))
   }
   return lines.join('\r\n')
 }
@@ -79,29 +83,24 @@ export function parseGuestPaste(text, side) {
           : att === 'no'
             ? 'no'
             : 'yes'
-    rows.push({ id: newId(), name, side, relation, rsvp })
+    rows.push({ name, side, relation, rsvp })
   }
   return rows
 }
 
-// Append `incoming`, keeping every guest name unique (seats reference names).
-export function mergeGuests(existing, incoming) {
-  const taken = new Set(existing.map((g) => g.name.toLowerCase()))
-  const added = incoming.map((g) => {
-    let name = g.name
-    if (taken.has(name.toLowerCase())) {
-      const base = g.relation ? `${g.name} (${g.relation})` : g.name
-      name = base
-      let n = 2
-      while (taken.has(name.toLowerCase())) name = `${base} ${n++}`
-    }
-    taken.add(name.toLowerCase())
-    return { ...g, name }
-  })
-  return [...existing, ...added]
-}
-
-export function GuestManager({ guests, onChange, seatedNames, tables = [], onSeatGuest }) {
+// guests: rows from useGuests(). onUpdateGuest/onRemoveGuest/onAddGuest/onBulkAdd
+// are useGuests operations — each save is scoped to the one row it touches, so
+// 200 people editing at once never overwrite each other's edits (see useGuests.js).
+export function GuestManager({
+  guests,
+  onUpdateGuest,
+  onRemoveGuest,
+  onAddGuest,
+  onBulkAdd,
+  seatedNames,
+  tables = [],
+  onSeatGuest,
+}) {
   const [q, setQ] = useState('')
   const [pasteSide, setPasteSide] = useState(null) // 'bride' | 'groom' | null
   const [pasteText, setPasteText] = useState('')
@@ -134,9 +133,6 @@ export function GuestManager({ guests, onChange, seatedNames, tables = [], onSea
       .map(([relation, items]) => ({ relation, items }))
   }
 
-  const update = (id, patch) => onChange(guests.map((g) => (g.id === id ? { ...g, ...patch } : g)))
-  const remove = (id) => onChange(guests.filter((g) => g.id !== id))
-
   const renderRow = (g) => {
     const seatedAt = seatedNames?.get(g.name)
     return (
@@ -145,14 +141,21 @@ export function GuestManager({ guests, onChange, seatedNames, tables = [], onSea
           className="g-name"
           value={g.name}
           placeholder="name"
-          onChange={(e) => update(g.id, { name: e.target.value })}
+          onChange={(e) => onUpdateGuest(g.id, { name: e.target.value })}
         />
         <input
           className="g-rel"
           value={g.relation}
           placeholder="relation"
-          onChange={(e) => update(g.id, { relation: e.target.value })}
+          onChange={(e) => onUpdateGuest(g.id, { relation: e.target.value })}
         />
+        <button
+          className={`g-meal is-${g.meal || 'chinese'}`}
+          title={`Meal: ${MEAL_LABEL[g.meal] || MEAL_LABEL.chinese} (click to change)`}
+          onClick={() => onUpdateGuest(g.id, { meal: nextMeal(g.meal || 'chinese') })}
+        >
+          {MEAL_BADGE[g.meal] || MEAL_BADGE.chinese}
+        </button>
         <select
           className={`g-table-sel${seatedAt ? '' : ' is-unseated'}`}
           value={seatedAt?.tableId || ''}
@@ -166,7 +169,7 @@ export function GuestManager({ guests, onChange, seatedNames, tables = [], onSea
             </option>
           ))}
         </select>
-        <button className="g-del" onClick={() => remove(g.id)} title="remove">
+        <button className="g-del" onClick={() => onRemoveGuest(g.id)} title="remove">
           ×
         </button>
       </li>
@@ -174,12 +177,12 @@ export function GuestManager({ guests, onChange, seatedNames, tables = [], onSea
   }
   const add = (side) => {
     setCollapsed((c) => ({ ...c, [side]: false, [`${side}::(no relation)`]: false }))
-    onChange([...guests, { id: newId(), name: '', side, relation: '', rsvp: 'yes' }])
+    onAddGuest({ side })
   }
 
   const doPaste = () => {
     const rows = parseGuestPaste(pasteText, pasteSide)
-    if (rows.length) onChange(mergeGuests(guests, rows))
+    if (rows.length) onBulkAdd(rows)
     setPasteText('')
     setPasteSide(null)
   }
@@ -187,8 +190,7 @@ export function GuestManager({ guests, onChange, seatedNames, tables = [], onSea
   // one-click import of a built-in list — skips names already present
   const have = new Set(guests.map((g) => g.name.toLowerCase()))
   const newFromBuiltin = (side) => BUILTIN[side].filter((g) => !have.has(g.name.toLowerCase()))
-  const loadBuiltin = (side) =>
-    onChange([...guests, ...newFromBuiltin(side).map((g) => ({ id: newId(), ...g }))])
+  const loadBuiltin = (side) => onBulkAdd(newFromBuiltin(side))
 
   return (
     <div className="guestmgr">

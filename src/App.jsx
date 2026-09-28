@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLayout } from './useLayout.js'
+import { useGuests } from './useGuests.js'
 import { FloorPlan } from './FloorPlan.jsx'
 import { Inspector } from './Inspector.jsx'
 import { DEFAULT_TABLE_HEIGHT_FT, DEFAULT_ROUND_DIAMETER_FT } from './defaultLayout.js'
@@ -7,8 +8,8 @@ import { DEFAULT_TABLE_HEIGHT_FT, DEFAULT_ROUND_DIAMETER_FT } from './defaultLay
 export default function App() {
   const {
     layout,
-    loading,
-    saveState,
+    loading: layoutLoading,
+    saveState: layoutSaveState,
     setLayoutName,
     updateItem,
     addItem,
@@ -17,16 +18,41 @@ export default function App() {
     resetLayout,
     replaceLayout,
     setLayoutView,
-    setGuestList,
-    assignSeat,
-    seatGuestAtTable,
-    reorderSeats,
-    swapTableSeats,
-    fillTableByRelations,
+    reorderBabySeats,
+    swapBabySeats,
+    setTableRelations,
     undo,
     redo,
     beginTransient,
   } = useLayout()
+
+  const {
+    guests,
+    loading: guestsLoading,
+    saveState: guestsSaveState,
+    patchGuest,
+    addGuest,
+    bulkAddGuests,
+    removeGuest,
+    replaceGuests,
+    resetGuests,
+    assignSeat,
+    seatGuestAtTable,
+    reorderSeats,
+    swapTableSeats,
+    clearTable,
+    fillTableByRelations,
+  } = useGuests()
+
+  const loading = layoutLoading || guestsLoading
+  // Two independent stores (tables autosave to /api/layout, guests autosave
+  // per-row to /api/guests) — show the more "urgent" of the two states.
+  const saveState =
+    layoutSaveState === 'offline' || guestsSaveState === 'offline'
+      ? 'offline'
+      : layoutSaveState === 'saving' || guestsSaveState === 'saving'
+        ? 'saving'
+        : 'saved'
 
   const [selectedId, setSelectedId] = useState(null)
   const [seatFocus, setSeatFocus] = useState(null) // { id, index } from a seat click
@@ -66,9 +92,33 @@ export default function App() {
     setSeatFocus({ id, index, at: Date.now() })
   }, [])
 
-  const selected = layout?.items.find((it) => it.id === selectedId) || null
+  // Guests carry their own tableId/seatIndex now (see useGuests.js); tables no
+  // longer own a seatNames array. Rebuild one per table here, purely for
+  // rendering (FloorPlan / TableItem / Inspector), so that layer stays untouched.
+  const seatNamesByTable = useMemo(() => {
+    const m = new Map()
+    for (const g of guests) {
+      if (g.tableId == null || g.seatIndex == null || !g.name) continue
+      if (!m.has(g.tableId)) m.set(g.tableId, [])
+      m.get(g.tableId)[g.seatIndex] = g.name
+    }
+    return m
+  }, [guests])
 
-  const guests = layout?.guests ?? []
+  const displayItems = useMemo(() => {
+    return (layout?.items ?? []).map((it) => {
+      if (it.kind !== 'table') return it
+      const pax = Math.max(0, Math.round(Number(it.pax) || 0))
+      const arr = seatNamesByTable.get(it.id) || []
+      const seatNames = Array.from({ length: pax }, (_, i) => arr[i] || '')
+      while (seatNames.length && !seatNames[seatNames.length - 1]) seatNames.pop()
+      return { ...it, seatNames }
+    })
+  }, [layout, seatNamesByTable])
+
+  const displayLayout = layout ? { ...layout, items: displayItems } : layout
+
+  const selected = displayItems.find((it) => it.id === selectedId) || null
 
   // name -> 'groom' | 'bride'  (for tinting seats on the plan)
   const sideByName = useMemo(() => {
@@ -84,28 +134,26 @@ export default function App() {
     return m
   }, [guests])
 
-  // name -> { table, seat, label }  (first seat that guest is assigned to)
+  // name -> { tableId, table, seat, label }  (first seat that guest is assigned to)
   const seatedIndex = useMemo(() => {
     const m = new Map()
-    for (const it of layout?.items ?? []) {
-      if (it.kind !== 'table' || !Array.isArray(it.seatNames)) continue
-      const pax = Math.max(0, Math.round(Number(it.pax) || 0))
-      it.seatNames.slice(0, pax).forEach((n, i) => {
-        if (n && !m.has(n)) {
-          m.set(n, {
-            tableId: it.id,
-            table: it.name,
-            seat: i + 1,
-            label: `${it.name} · seat ${i + 1}`,
-          })
-        }
+    const tableById = new Map(displayItems.map((it) => [it.id, it]))
+    for (const g of guests) {
+      if (!g.name || g.tableId == null || g.seatIndex == null || m.has(g.name)) continue
+      const t = tableById.get(g.tableId)
+      if (!t) continue
+      m.set(g.name, {
+        tableId: g.tableId,
+        table: t.name,
+        seat: g.seatIndex + 1,
+        label: `${t.name} · seat ${g.seatIndex + 1}`,
       })
     }
     return m
-  }, [layout])
+  }, [guests, displayItems])
 
   const stats = useMemo(() => {
-    const tables = (layout?.items ?? []).filter((it) => it.kind === 'table')
+    const tables = displayItems.filter((it) => it.kind === 'table')
     const activeTables = tables.filter((t) => t.active !== false)
     const seated = activeTables.filter((t) => t.seating !== false)
     const totalPax = seated.reduce((s, t) => s + (Number(t.pax) || 0), 0)
@@ -126,7 +174,7 @@ export default function App() {
         .filter((t) => t.active === false)
         .reduce((s, t) => s + (Number(t.pax) || 0), 0),
     }
-  }, [layout])
+  }, [displayItems])
 
   // keyboard: undo / redo / delete
   useEffect(() => {
@@ -173,14 +221,16 @@ export default function App() {
   )
 
   const handleExport = useCallback(() => {
-    const blob = new Blob([JSON.stringify(layout, null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify({ ...layout, guests }, null, 2)], {
+      type: 'application/json',
+    })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     a.download = `${(layout.name || 'glasshouse-layout').replace(/[^\w-]+/g, '_')}.json`
     a.click()
     URL.revokeObjectURL(url)
-  }, [layout])
+  }, [layout, guests])
 
   const handleImport = useCallback(
     (e) => {
@@ -189,7 +239,9 @@ export default function App() {
       const reader = new FileReader()
       reader.onload = () => {
         try {
-          replaceLayout(JSON.parse(String(reader.result)))
+          const data = JSON.parse(String(reader.result))
+          replaceLayout(data)
+          if (Array.isArray(data.guests)) replaceGuests(data.guests)
           setSelectedId(null)
         } catch (err) {
           alert('Could not read that file: ' + err.message)
@@ -198,7 +250,51 @@ export default function App() {
       reader.readAsText(file)
       e.target.value = ''
     },
-    [replaceLayout],
+    [replaceLayout, replaceGuests],
+  )
+
+  const handleReset = useCallback(() => {
+    if (!confirm('Reset to the original blueprint layout? This clears your changes.')) return
+    resetLayout()
+    resetGuests()
+    setSelectedId(null)
+  }, [resetLayout, resetGuests])
+
+  const handleReorderSeat = useCallback(
+    (tableId, from, to) => {
+      const t = displayItems.find((it) => it.id === tableId)
+      const pax = t ? Math.max(0, Math.round(Number(t.pax) || 0)) : 0
+      reorderSeats(tableId, from, to, pax)
+      reorderBabySeats(tableId, from, to)
+    },
+    [displayItems, reorderSeats, reorderBabySeats],
+  )
+
+  const handleSeatGuest = useCallback(
+    (name, tableId) => {
+      const t = tableId ? displayItems.find((it) => it.id === tableId) : null
+      const pax = t ? Math.max(0, Math.round(Number(t.pax) || 0)) : 0
+      seatGuestAtTable(name, tableId || null, pax)
+    },
+    [displayItems, seatGuestAtTable],
+  )
+
+  const handleSwapSeats = useCallback(
+    (aId, bId) => {
+      swapTableSeats(aId, bId)
+      swapBabySeats(aId, bId)
+    },
+    [swapTableSeats, swapBabySeats],
+  )
+
+  const handleFillByRelation = useCallback(
+    (tableId, relations) => {
+      const t = displayItems.find((it) => it.id === tableId)
+      const pax = t ? Math.max(0, Math.round(Number(t.pax) || 0)) : 0
+      setTableRelations(tableId, relations)
+      fillTableByRelations(tableId, relations, pax)
+    },
+    [displayItems, setTableRelations, fillTableByRelations],
   )
 
   if (loading || !layout) {
@@ -279,15 +375,7 @@ export default function App() {
             hidden
             onChange={handleImport}
           />
-          <button
-            className="danger"
-            onClick={() => {
-              if (confirm('Reset to the original blueprint layout? This clears your changes.')) {
-                resetLayout()
-                setSelectedId(null)
-              }
-            }}
-          >
+          <button className="danger" onClick={handleReset}>
             Reset
           </button>
         </div>
@@ -360,7 +448,7 @@ export default function App() {
 
       <main className="workspace">
         <FloorPlan
-          layout={layout}
+          layout={displayLayout}
           selectedId={selectedId}
           locked={locked}
           sideByName={sideByName}
@@ -382,14 +470,18 @@ export default function App() {
           seatFocus={seatFocus}
           locked={locked}
           guests={guests}
-          onGuestsChange={setGuestList}
+          onUpdateGuest={patchGuest}
+          onRemoveGuest={removeGuest}
+          onAddGuest={addGuest}
+          onBulkAdd={bulkAddGuests}
           seatedIndex={seatedIndex}
           onAssignSeat={assignSeat}
-          onReorderSeat={reorderSeats}
-          onSeatGuest={seatGuestAtTable}
-          tables={layout.items.filter((it) => it.kind === 'table').map((it) => ({ id: it.id, name: it.name }))}
-          onSwapSeats={swapTableSeats}
-          onFillByRelation={fillTableByRelations}
+          onReorderSeat={handleReorderSeat}
+          onSeatGuest={handleSeatGuest}
+          onClearTable={clearTable}
+          tables={displayItems.filter((it) => it.kind === 'table').map((it) => ({ id: it.id, name: it.name }))}
+          onSwapSeats={handleSwapSeats}
+          onFillByRelation={handleFillByRelation}
           onChange={updateItem}
           onDuplicate={(id) => {
             const nid = duplicateItem(id)

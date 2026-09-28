@@ -12,9 +12,6 @@
 // (not user-editable), while its HEIGHT / depth is always DEFAULT_TABLE_HEIGHT_FT.
 // -----------------------------------------------------------------------------
 
-import { BRIDE_GUESTS } from "./data/brideGuests.js";
-import { GROOM_GUESTS } from "./data/groomGuests.js";
-
 // Fixed drawn depth of every table, in feet (a 6 ft banquet trestle is ~30").
 export const DEFAULT_TABLE_HEIGHT_FT = 3.5;
 
@@ -93,31 +90,12 @@ function roundTable(name, x, y, pax, diameterFt, extra = {}) {
 export function buildDefaultLayout() {
   uid = 0;
   return {
-    version: 2,
+    version: 3, // v3: guests live in their own per-row store (see src/useGuests.js),
+    // no longer embedded in the layout document. Tables still carry a
+    // `seatNames` extra below — it's read once by src/data/defaultGuests.js to
+    // seed the guest store's tableId/seatIndex; the running app ignores it.
     name: "The Glasshouse — HYBRID v1 (blueprint)",
     view: { ...DEFAULT_VIEW },
-    // Master guest list, split by side. Each: { id, name, side, relation, rsvp }.
-    // Seats reference guests by name (item.seatNames[i]).
-    guests: [
-      {
-        id: "g-bride",
-        name: "Amanda",
-        side: "bride",
-        role: "bride",
-        relation: "Bride",
-        rsvp: "yes",
-      },
-      {
-        id: "g-groom",
-        name: "Jeremiah",
-        side: "groom",
-        role: "groom",
-        relation: "Groom",
-        rsvp: "yes",
-      },
-      ...BRIDE_GUESTS.map((g, i) => ({ id: `g-b${i + 1}`, ...g })),
-      ...GROOM_GUESTS.map((g, i) => ({ id: `g-g${i + 1}`, ...g })),
-    ],
     items: [
       // ---- Stage / fixed furniture --------------------------------------
       {
@@ -176,25 +154,47 @@ export function buildDefaultLayout() {
       // Both VIP tables are always drawn at a 12-pax length (a matching pair),
       // regardless of how many people sit there. `lockLength` keeps normalizeItem
       // from resetting it to the pax-derived value.
-      rectTable("VIP2", 30.0, 25.5, 8, {
+      // Synced from the production layout (S3) so a fresh deploy / Reset starts
+      // from the current real seating plan, not the original blueprint mock-up.
+      rectTable("VIP2", 30, 25.5, 12, {
+        seatNames: ["Mama", "Er Yi", "San Yi", "Mum", "Cassandra", "Philus", "Xiao Gu", "Da Gu", "Ah Ghim", "Dad", "Claudia", "Clarance"],
         lengthFt: lengthFromPax(12), // VIP tables are always 12-pax length
         lockLength: true,
+        relations: ["bride::Relative"],
       }),
-      rectTable("Table 7", 57.5, 25.5, 30),
-      rectTable("Table 8", 60, 15, 24),
-      rectTable("Table 9", 32.5, 15, 24),
-      rectTable("Table 10", 47.4, 5.5, 24),
+      rectTable("Table 7", 57.5, 25.5, 30, {
+        seatNames: ["Da Jie", "Ken", "Er Jie", "Yun Xi", "Lai Wei Hong", "Yuen Mei Ma", "Janine Ong", "Soon Keat Chong", "Alfred Lai", "Elton Chua", "Caroline Tay", "Jason Lua", "", "Ace Han", "Emily Nyein", "Ms. Kasumi Chen", "Dawson", "Syaz", "Dulcia Lee", "Keia Ang", "Ryan Ang", "Carol Hon", "Wai San Yong", "Aitkah Sunny", "Wye kaye Yan", "Hoo Kiet Choke", "Shalote Chua", "Chin Hwee Teo", "Aloysious Tan", "Darryl Lim"],
+        relations: ["bride::D's", "bride::Websparks", "bride::Secondary Friend"],
+      }),
+      rectTable("Table 8", 60, 15, 24, {
+        seatNames: ["Jia Xuan Ng", "Justin Lim", "Zachary Goh", "Francis Goh", "Calvan Saw", "Leonard Lim", "Boon Han Charayaphan", "David Tong", "Jia Kuan Lau", "Andrew Chan", "", "Joe Ying Ying", "Wei lin Khoo", "Leon Chua", "Hui Lim Ng", "Kayla Ong", "Theo Tay", "Jin Ling Han", "Davien Soh", "Le Yuan Lee", "Tony Tan", "Eunice Lim", "Kevin Ng", "Penny Heng"],
+        babySeats: [2],
+        relations: ["bride::IBM", "bride::XD", "bride::Cherry"],
+      }),
+      rectTable("Table 9", 32.5, 15, 22, {
+        seatNames: ["Andy", "Artino", "Melvin", "Siew Hua", "Shaine Wang", "Ka Chon Ho", "Sandy Huang", "Amber Lin", "Shi Ting Chen", "Zheng jie", "Josephine (jo)", "Zun Jie Yeo", "Yan Yu Sim", "Steffi Ong", "Quan Yong Koh", "Nicholas Yeo", "Pebble Quek", "Narelle Yeo", "Roanna Koh", "Gordon Goh", "Stefanie Ong", "Cliff Tan"],
+        relations: ["bride::WSS", "bride::Overseas", "bride::Primary Friend"],
+      }),
+      rectTable("Table 10", 47.4, 5.5, 23, {
+        seatNames: ["Arthur", "Benjamin", "Kai Lin", "Clara", "Philp", "Gina", "Glenn", "Jonas", "Sentosa", "Xiao Tian", "Sebastian Khoo", "Ashley Leong", "Jarmaine Oei", "Jywa Low", "Benjamin Tham", "Yen Yen Woo", "Addison Kang", "Esther Goh", "Hamilton", "Geraldine Mok", "Shu Yuan Mok", "Martin Mok"],
+        relations: ["bride::Polyforum", "bride::Gametize", "bride::Pinnacle", "bride::Yumcha", "bride::Drinking"],
+      }),
 
       // ---- Bottom half (below the aisle) ----------------------------
-      rectTable("VIP1", 30.0, 41, 12, {
-        seatNames: ["", "", "", "", "", "Amanda", "Jeremiah"], // seat 6 & 7
+      rectTable("VIP1", 30, 41, 12, {
+        seatNames: ["Daddy", "Mummy", "Jonathan", "Christine", "Ivan", "", "Amanda", "Jeremiah"],
         lengthFt: lengthFromPax(12), // VIP tables are always 12-pax length
         lockLength: true,
       }),
-      rectTable("Table 3", 57.5, 41, 30),
-      rectTable("Table 4", 32.5, 53, 24),
+      rectTable("Table 3", 57.5, 41, 30, {
+        seatNames: ["Joel Loong", "Matthew", "Belinda", "Khertan", "Shan", "Deepag", "Jacky", "Jun Jie", "Anshu", "Hao Jun", "Xing Ao", "Shoshanna", "Kenny", "Zhen Yu", "Edmund", "Sze Yee", "Kyra", "Vivien", "Jonathan (Viv + 1)", "Shamaine", "Sarah", "Joel Yeo", "Teng Liang", "Jun Hui", "Cheryl Tan", "Jordan", "Sheryl Toh", "Jon", "Serene", "Kai Wei"],
+      }),
+      rectTable("Table 4", 29.25, 53, 30),
       rectTable("Table 5", 60, 53, 24),
-      rectTable("Table 6", 47.4, 63.5, 24),
+      rectTable("Table 6", 47.4, 63.5, 24, {
+        seatNames: ["Raymond Kwan", "Jonathan Lim", "Hui Min Choong", "Xin de Ng", "Shi ling Lam", "Jenn Lim", "Teck Ren", "Nuwan", "Daren Ng", "Lu khei Chong", "Pei Yi Chew", "Petrine Tang", "Zi Kai Ong", "Huda Rafie", "Andy Teng", "Fairuz Choo", "Kumar Ravel", "Firly Yusmal", "Zoe", "Pei Zhi", "Felicia Ng", "Maria Ng", "Eddie Yu", "Doris Ng"],
+        relations: ["bride::GovTech Im8", "bride::GovTech Design"],
+      }),
     ],
   };
 }

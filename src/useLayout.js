@@ -27,7 +27,6 @@ const IDLE_BEFORE_ADOPT_MS = 3000
 function normalizeItem(item) {
   let next = item
   if (next.diameterFt == null) next = { ...next, diameterFt: DEFAULT_ROUND_DIAMETER_FT }
-  if (next.kind === 'table' && !Array.isArray(next.seatNames)) next = { ...next, seatNames: [] }
   if (next.kind === 'table' && !Array.isArray(next.babySeats)) next = { ...next, babySeats: [] }
   if (next.kind === 'table' && !Array.isArray(next.relations)) next = { ...next, relations: [] }
 
@@ -44,39 +43,15 @@ function normalizeItem(item) {
   return next
 }
 
-function normalizeGuest(g, i) {
-  const rsvp = String(g?.rsvp ?? 'yes').toLowerCase()
-  const out = {
-    id: g?.id || `g-${Date.now().toString(36)}-${i}-${Math.random().toString(36).slice(2, 5)}`,
-    name: String(g?.name ?? '').trim(),
-    side: g?.side === 'bride' ? 'bride' : 'groom',
-    relation: String(g?.relation ?? '').trim(),
-    rsvp: ['yes', 'no', 'pending', 'baby'].includes(rsvp) ? rsvp : 'yes',
-  }
-  if (g?.role === 'bride' || g?.role === 'groom') out.role = g.role // the couple
-  return out
-}
-
-// Keep every guest name unique (seats reference guests by name).
-function dedupeGuestNames(guests) {
-  const taken = new Set()
-  return guests.map((g) => {
-    if (!g.name) return g
-    let name = g.name
-    let n = 2
-    while (taken.has(name.toLowerCase())) name = `${g.name} (${n++})`
-    taken.add(name.toLowerCase())
-    return name === g.name ? g : { ...g, name }
-  })
-}
-
 function normalizeLayout(layout) {
+  // `guests` was dropped in v3 (see defaultLayout.js) — strip it explicitly so
+  // an old production layout.json (saved before this refactor, which still has
+  // its whole guest roster embedded here) doesn't keep getting silently
+  // resaved to S3 forever on every autosave.
+  const { guests, ...rest } = layout
   return {
-    ...layout,
+    ...rest,
     view: { ...DEFAULT_VIEW, ...(layout.view || {}) },
-    guests: dedupeGuestNames(
-      Array.isArray(layout.guests) ? layout.guests.map(normalizeGuest) : [],
-    ),
     items: (layout.items || []).map(normalizeItem),
   }
 }
@@ -307,7 +282,6 @@ export function useLayout() {
               name: `${src.name} (copy)`,
               x: src.x + 4,
               y: src.y + 4,
-              seatNames: Array.isArray(src.seatNames) ? [...src.seatNames] : [],
             },
           ],
         }
@@ -317,133 +291,11 @@ export function useLayout() {
     [commit],
   )
 
-  // Assign a guest to one seat. Guarantees the guest sits nowhere else: their
-  // name is cleared from every other seat on every table first.
-  const assignSeat = useCallback(
-    (itemId, index, name) => {
-      commit((prev) => {
-        let mutated = false
-        const items = prev.items.map((it) => {
-          if (it.kind !== 'table') return it
-          let seats = Array.isArray(it.seatNames) ? it.seatNames.slice() : []
-          const before = seats.join(' ')
-          if (name) {
-            seats = seats.map((n, i) =>
-              n === name && !(it.id === itemId && i === index) ? '' : n,
-            )
-          }
-          if (it.id === itemId) {
-            while (seats.length <= index) seats.push('')
-            seats[index] = name
-          }
-          while (seats.length && !seats[seats.length - 1]) seats.pop()
-          if (seats.join(' ') !== before) {
-            mutated = true
-            return { ...it, seatNames: seats }
-          }
-          return it
-        })
-        return mutated ? { ...prev, items } : prev
-      })
-    },
-    [commit],
-  )
-
-  // Tag a table with a set of guest `relations` and drop every not-yet-seated
-  // guest of those relations into the table's free seats (guest-list order).
-  // Guests who already have a seat anywhere are left where they are.
-  const fillTableByRelations = useCallback(
-    (itemId, relations) => {
-      commit((prev) => {
-        const table = prev.items.find((i) => i.id === itemId)
-        if (!table || table.kind !== 'table') return prev
-        const pax = Math.max(0, Math.round(Number(table.pax) || 0))
-        const rels = [...new Set((relations || []).filter(Boolean))]
-
-        const seatedNames = new Set()
-        for (const it of prev.items) {
-          if (it.kind !== 'table') continue
-          for (const n of it.seatNames || []) if (n) seatedNames.add(n)
-        }
-
-        const seats = (table.seatNames || []).slice(0, pax)
-        while (seats.length < pax) seats.push('')
-
-        // each tag is "bride::Relative" / "groom::IBM"; bare = either side
-        const specs = rels.map((r) => {
-          const i = r.indexOf('::')
-          return i >= 0
-            ? { side: r.slice(0, i), relation: r.slice(i + 2) }
-            : { side: null, relation: r }
-        })
-        const wanted = (prev.guests || []).filter(
-          (g) =>
-            g.name &&
-            !seatedNames.has(g.name) &&
-            specs.some((sp) => sp.relation === g.relation && (!sp.side || sp.side === g.side)),
-        )
-        let gi = 0
-        for (let s = 0; s < pax && gi < wanted.length; s++) {
-          if (!seats[s]) {
-            seats[s] = wanted[gi++].name
-            seatedNames.add(seats[s])
-          }
-        }
-        while (seats.length && !seats[seats.length - 1]) seats.pop()
-
-        return {
-          ...prev,
-          items: prev.items.map((it) =>
-            it.id === itemId ? { ...it, seatNames: seats, relations: rels } : it,
-          ),
-        }
-      })
-    },
-    [commit],
-  )
-
-  // Seat a guest at the first free seat of `tableId` (or unseat them if tableId
-  // is falsy). The guest is removed from any other seat first. No-op if the
-  // target table is full.
-  const seatGuestAtTable = useCallback(
-    (name, tableId) => {
-      if (!name) return
-      commit((prev) => {
-        if (tableId) {
-          const t = prev.items.find((i) => i.id === tableId)
-          if (!t || t.kind !== 'table') return prev
-          const pax = Math.max(0, Math.round(Number(t.pax) || 0))
-          const cur = (Array.isArray(t.seatNames) ? t.seatNames : []).slice(0, pax)
-          if (!cur.includes(name) && cur.filter(Boolean).length >= pax) return prev // full
-        }
-        let changed = false
-        const items = prev.items.map((it) => {
-          if (it.kind !== 'table') return it
-          let seats = Array.isArray(it.seatNames) ? it.seatNames.slice() : []
-          const before = seats.join(' ')
-          seats = seats.map((n) => (n === name ? '' : n))
-          if (tableId && it.id === tableId) {
-            const pax = Math.max(0, Math.round(Number(it.pax) || 0))
-            while (seats.length < pax) seats.push('')
-            const free = seats.findIndex((n, idx) => idx < pax && !n)
-            if (free > -1) seats[free] = name
-          }
-          while (seats.length && !seats[seats.length - 1]) seats.pop()
-          if (seats.join(' ') !== before) {
-            changed = true
-            return { ...it, seatNames: seats }
-          }
-          return it
-        })
-        return changed ? { ...prev, items } : prev
-      })
-    },
-    [commit],
-  )
-
-  // Move seat `from` to position `to` within one table; the seats in between
-  // shift to fill the gap. Baby-seat flags travel with their row.
-  const reorderSeats = useCallback(
+  // Move seat `from` to position `to` within one table; the baby-seat flags
+  // in between shift to fill the gap. Who's actually seated where lives on
+  // the guest rows now (see useGuests.js's reorderSeats, which moves seatIndex
+  // on the guest side and calls this to keep the table's babySeats in step).
+  const reorderBabySeats = useCallback(
     (tableId, from, to) => {
       if (from === to) return
       commit((prev) => ({
@@ -453,24 +305,20 @@ export function useLayout() {
           const pax = Math.max(0, Math.round(Number(it.pax) || 0))
           if (from < 0 || from >= pax || to < 0 || to >= pax) return it
           const babySet = new Set(Array.isArray(it.babySeats) ? it.babySeats : [])
-          const rows = Array.from({ length: pax }, (_, i) => ({
-            name: (it.seatNames || [])[i] || '',
-            baby: babySet.has(i),
-          }))
-          const [moved] = rows.splice(from, 1)
-          rows.splice(to, 0, moved)
-          const seatNames = rows.map((r) => r.name)
-          while (seatNames.length && !seatNames[seatNames.length - 1]) seatNames.pop()
-          const babySeats = rows.map((r, i) => (r.baby ? i : -1)).filter((i) => i >= 0)
-          return { ...it, seatNames, babySeats }
+          const flags = Array.from({ length: pax }, (_, i) => babySet.has(i))
+          const [moved] = flags.splice(from, 1)
+          flags.splice(to, 0, moved)
+          const babySeats = flags.map((b, i) => (b ? i : -1)).filter((i) => i >= 0)
+          return { ...it, babySeats }
         }),
       }))
     },
     [commit],
   )
 
-  // Swap every seat assignment (and baby-seat flags) between two tables.
-  const swapTableSeats = useCallback(
+  // Swap two tables' baby-seat flags (paired with useGuests.js's
+  // swapTableSeats, which swaps who's actually sitting where).
+  const swapBabySeats = useCallback(
     (aId, bId) => {
       if (!aId || !bId || aId === bId) return
       commit((prev) => {
@@ -480,14 +328,25 @@ export function useLayout() {
         return {
           ...prev,
           items: prev.items.map((it) => {
-            if (it.id === aId)
-              return { ...it, seatNames: [...(b.seatNames || [])], babySeats: [...(b.babySeats || [])] }
-            if (it.id === bId)
-              return { ...it, seatNames: [...(a.seatNames || [])], babySeats: [...(a.babySeats || [])] }
+            if (it.id === aId) return { ...it, babySeats: [...(b.babySeats || [])] }
+            if (it.id === bId) return { ...it, babySeats: [...(a.babySeats || [])] }
             return it
           }),
         }
       })
+    },
+    [commit],
+  )
+
+  // Tag a table with the guest `relations` it's meant to hold (used by
+  // useGuests.js's fillTableByRelations to know who's eligible for the seats).
+  const setTableRelations = useCallback(
+    (itemId, relations) => {
+      const rels = [...new Set((relations || []).filter(Boolean))]
+      commit((prev) => ({
+        ...prev,
+        items: prev.items.map((it) => (it.id === itemId ? { ...it, relations: rels } : it)),
+      }))
     },
     [commit],
   )
@@ -518,19 +377,10 @@ export function useLayout() {
     setLayoutName: (name) => commit((prev) => ({ ...prev, name })),
     setLayoutView: (patch) =>
       commit((prev) => ({ ...prev, view: { ...DEFAULT_VIEW, ...prev.view, ...patch } })),
-    setGuestList: (next) =>
-      commit((prev) => ({
-        ...prev,
-        guests: dedupeGuestNames(
-          (typeof next === 'function' ? next(prev.guests || []) : next).map(normalizeGuest),
-        ),
-      })),
     updateItem,
-    assignSeat,
-    seatGuestAtTable,
-    reorderSeats,
-    swapTableSeats,
-    fillTableByRelations,
+    reorderBabySeats,
+    swapBabySeats,
+    setTableRelations,
     addItem,
     removeItem,
     duplicateItem,

@@ -685,7 +685,7 @@ button.mini {
 
 .guestmgr-row {
   display: grid;
-  grid-template-columns: 1fr 0.7fr 5.6em 14px;
+  grid-template-columns: 1fr 0.7fr 1.5em 5.6em 14px;
   gap: 4px;
   align-items: center;
   padding: 2px 0;
@@ -709,6 +709,34 @@ button.mini {
 .guestmgr-row .g-table-sel.is-unseated {
   color: var(--muted);
   font-weight: 400;
+}
+.g-meal {
+  flex: 0 0 auto;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+  padding: 0;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.g-meal.is-chinese {
+  background: #eef1f4;
+  color: #6b7683;
+  border-color: var(--line);
+}
+.g-meal.is-vegetarian {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #bbf0cc;
+}
+.g-meal.is-halal {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #c3d9fb;
 }
 .guestmgr-row .g-del {
   border: none;

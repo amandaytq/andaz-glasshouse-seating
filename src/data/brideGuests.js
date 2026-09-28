@@ -1,914 +1,139 @@
-// Bride-side master guest list (135 guests). Generated from the
-// planning spreadsheet; edit here or in the app.
+// Bride-side master guest list (135 guests). Synced from the
+// production layout (S3) on 2026-09-24; edit here or in the app.
 export const BRIDE_GUESTS = [
   { name: "Mum", side: "bride", relation: "Mother", rsvp: "yes" },
   { name: "Dad", side: "bride", relation: "Father", rsvp: "yes" },
-  {
-    name: "Mama",
-    side: "bride",
-    relation: "Relative",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Er Yi",
-    side: "bride",
-    relation: "Relative",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "San Yi",
-    side: "bride",
-    relation: "Relative",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Xiao Gu",
-    side: "bride",
-    relation: "Relative",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Da Gu",
-    side: "bride",
-    relation: "Relative",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Ah Ghim",
-    side: "bride",
-    relation: "Relative",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Da Jie",
-    side: "bride",
-    relation: "Cousin",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Er Jie",
-    side: "bride",
-    relation: "Cousin",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Lai Wei Hong",
-    side: "bride",
-    relation: "Cousin",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Ken",
-    side: "bride",
-    relation: "Cousin",
-   
-    rsvp: "yes",
-  },
+  { name: "Mama", side: "bride", relation: "Relative", rsvp: "yes" },
+  { name: "Er Yi", side: "bride", relation: "Relative", rsvp: "yes" },
+  { name: "San Yi", side: "bride", relation: "Relative", rsvp: "yes" },
+  { name: "Xiao Gu", side: "bride", relation: "Relative", rsvp: "yes" },
+  { name: "Da Gu", side: "bride", relation: "Relative", rsvp: "yes" },
+  { name: "Ah Ghim", side: "bride", relation: "Relative", rsvp: "yes" },
+  { name: "Da Jie", side: "bride", relation: "Cousin", rsvp: "yes" },
+  { name: "Er Jie", side: "bride", relation: "Cousin", rsvp: "yes" },
+  { name: "Lai Wei Hong", side: "bride", relation: "Cousin", rsvp: "yes" },
+  { name: "Ken", side: "bride", relation: "Cousin", rsvp: "yes" },
   { name: "Yun Xi", side: "bride", relation: "Niece", rsvp: "yes" },
-  {
-    name: "Claudia",
-    side: "bride",
-    relation: "Family",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Clarance",
-    side: "bride",
-    relation: "Family",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Cassandra",
-    side: "bride",
-    relation: "Family",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Philus",
-    side: "bride",
-    relation: "Family",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Dawson",
-    side: "bride",
-    relation: "Family",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Syaz",
-    side: "bride",
-    relation: "Family",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Ms. Kasumi Chen",
-    side: "bride",
-    relation: "Mummy friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Keia Ang",
-    side: "bride",
-    relation: "D's",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Wai San Yong",
-    side: "bride",
-    relation: "D's",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Carol Hon",
-    side: "bride",
-    relation: "D's",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Ryan Ang",
-    side: "bride",
-    relation: "D's",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Dulcia Lee",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Alfred Lai",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Elton Chua",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Zun Jie Yeo",
-    side: "bride",
-    relation: "Primary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Yan Yu Sim",
-    side: "bride",
-    relation: "Primary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Steffi Ong",
-    side: "bride",
-    relation: "Primary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Quan Yong Koh",
-    side: "bride",
-    relation: "Primary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Nicholas Yeo",
-    side: "bride",
-    relation: "Primary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Pebble Quek",
-    side: "bride",
-    relation: "Primary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Narelle Yeo",
-    side: "bride",
-    relation: "Primary Friend",
-   
-    rsvp: "baby",
-  },
-  {
-    name: "Roanna Koh",
-    side: "bride",
-    relation: "Primary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Gordon Goh",
-    side: "bride",
-    relation: "Primary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Stefanie Ong",
-    side: "bride",
-    relation: "Primary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Cliff Tan",
-    side: "bride",
-    relation: "Primary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Caroline Tay",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Jason Lua",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Belinda Loh",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Ace Han",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Emily Nyein",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Aitkah Sunny",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Wye kaye Yan",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Hoo Kiet Choke",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Shalote Chua",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Chin Hwee Teo",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Aloysious Tan",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Darryl Lim",
-    side: "bride",
-    relation: "Secondary Friend",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Yuen Mei Ma",
-    side: "bride",
-    relation: "Websparks",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Janine Ong",
-    side: "bride",
-    relation: "Websparks",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Soon Keat Chong",
-    side: "bride",
-    relation: "Websparks",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Sebastian Khoo",
-    side: "bride",
-    relation: "Gametize",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Ashley Leong",
-    side: "bride",
-    relation: "Gametize",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Jywa Low",
-    side: "bride",
-    relation: "Gametize",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Fairuz Choo",
-    side: "bride",
-    relation: "Gametize",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Firly Yusmal",
-    side: "bride",
-    relation: "Gametize",
-   
-    rsvp: "yes",
-  },
+  { name: "Claudia", side: "bride", relation: "Family", rsvp: "yes" },
+  { name: "Clarance", side: "bride", relation: "Family", rsvp: "yes" },
+  { name: "Cassandra", side: "bride", relation: "Family", rsvp: "yes" },
+  { name: "Philus", side: "bride", relation: "Family", rsvp: "yes" },
+  { name: "Dawson", side: "bride", relation: "Family", rsvp: "yes" },
+  { name: "Syaz", side: "bride", relation: "Family", rsvp: "yes" },
+  { name: "Ms. Kasumi Chen", side: "bride", relation: "Mummy friend", rsvp: "yes" },
+  { name: "Keia Ang", side: "bride", relation: "D's", rsvp: "yes" },
+  { name: "Wai San Yong", side: "bride", relation: "D's", rsvp: "yes" },
+  { name: "Carol Hon", side: "bride", relation: "D's", rsvp: "yes" },
+  { name: "Ryan Ang", side: "bride", relation: "D's", rsvp: "yes" },
+  { name: "Dulcia Lee", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Alfred Lai", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Elton Chua", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Zun Jie Yeo", side: "bride", relation: "Primary Friend", rsvp: "yes" },
+  { name: "Yan Yu Sim", side: "bride", relation: "Primary Friend", rsvp: "yes" },
+  { name: "Steffi Ong", side: "bride", relation: "Primary Friend", rsvp: "yes" },
+  { name: "Quan Yong Koh", side: "bride", relation: "Primary Friend", rsvp: "yes" },
+  { name: "Nicholas Yeo", side: "bride", relation: "Primary Friend", rsvp: "yes" },
+  { name: "Pebble Quek", side: "bride", relation: "Primary Friend", rsvp: "yes" },
+  { name: "Narelle Yeo", side: "bride", relation: "Primary Friend", rsvp: "baby" },
+  { name: "Roanna Koh", side: "bride", relation: "Primary Friend", rsvp: "yes" },
+  { name: "Gordon Goh", side: "bride", relation: "Primary Friend", rsvp: "yes" },
+  { name: "Stefanie Ong", side: "bride", relation: "Primary Friend", rsvp: "yes" },
+  { name: "Cliff Tan", side: "bride", relation: "Primary Friend", rsvp: "yes" },
+  { name: "Caroline Tay", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Jason Lua", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Belinda Loh", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Ace Han", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Emily Nyein", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Aitkah Sunny", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Wye kaye Yan", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Hoo Kiet Choke", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Shalote Chua", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Chin Hwee Teo", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Aloysious Tan", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Darryl Lim", side: "bride", relation: "Secondary Friend", rsvp: "yes" },
+  { name: "Yuen Mei Ma", side: "bride", relation: "Websparks", rsvp: "yes" },
+  { name: "Janine Ong", side: "bride", relation: "Websparks", rsvp: "yes" },
+  { name: "Soon Keat Chong", side: "bride", relation: "Websparks", rsvp: "yes" },
+  { name: "Sebastian Khoo", side: "bride", relation: "Gametize", rsvp: "yes" },
+  { name: "Ashley Leong", side: "bride", relation: "Gametize", rsvp: "yes" },
+  { name: "Jywa Low", side: "bride", relation: "Gametize", rsvp: "yes" },
+  { name: "Fairuz Choo", side: "bride", relation: "Gametize", rsvp: "yes" },
+  { name: "Firly Yusmal", side: "bride", relation: "Gametize", rsvp: "yes" },
   { name: "Zoe", side: "bride", relation: "Gametize", rsvp: "yes" },
-  {
-    name: "Kumar Ravel",
-    side: "bride",
-    relation: "Gametize",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Tony Tan",
-    side: "bride",
-    relation: "Cherry",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Eunice Lim",
-    side: "bride",
-    relation: "Cherry",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Kevin Ng",
-    side: "bride",
-    relation: "Cherry",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Penny Heng",
-    side: "bride",
-    relation: "Cherry",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Addison Kang",
-    side: "bride",
-    relation: "Pinnacle",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Esther Goh",
-    side: "bride",
-    relation: "Pinnacle",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Hamilton",
-    side: "bride",
-    relation: "Pinnacle",
-   
-    rsvp: "baby",
-  },
-  {
-    name: "Geraldine Mok",
-    side: "bride",
-    relation: "Pinnacle",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Shu Yuan Mok",
-    side: "bride",
-    relation: "Pinnacle",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Martin Mok",
-    side: "bride",
-    relation: "Pinnacle",
-   
-    rsvp: "yes",
-  },
+  { name: "Kumar Ravel", side: "bride", relation: "Gametize", rsvp: "yes" },
+  { name: "Tony Tan", side: "bride", relation: "Cherry", rsvp: "yes" },
+  { name: "Eunice Lim", side: "bride", relation: "Cherry", rsvp: "yes" },
+  { name: "Kevin Ng", side: "bride", relation: "Cherry", rsvp: "yes" },
+  { name: "Penny Heng", side: "bride", relation: "Cherry", rsvp: "yes" },
+  { name: "Addison Kang", side: "bride", relation: "Pinnacle", rsvp: "yes" },
+  { name: "Esther Goh", side: "bride", relation: "Pinnacle", rsvp: "yes" },
+  { name: "Hamilton", side: "bride", relation: "Pinnacle", rsvp: "baby" },
+  { name: "Geraldine Mok", side: "bride", relation: "Pinnacle", rsvp: "yes" },
+  { name: "Shu Yuan Mok", side: "bride", relation: "Pinnacle", rsvp: "yes" },
+  { name: "Martin Mok", side: "bride", relation: "Pinnacle", rsvp: "yes" },
   { name: "Kayla Ong", side: "bride", relation: "XD", rsvp: "yes" },
-  {
-    name: "Theo Tay",
-    side: "bride",
-    relation: "XD",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Jin Ling Han",
-    side: "bride",
-    relation: "XD",
-   
-    rsvp: "yes",
-  },
+  { name: "Theo Tay", side: "bride", relation: "XD", rsvp: "yes" },
+  { name: "Jin Ling Han", side: "bride", relation: "XD", rsvp: "yes" },
   { name: "Davien Soh", side: "bride", relation: "XD", rsvp: "yes" },
-  {
-    name: "Le Yuan Lee",
-    side: "bride",
-    relation: "XD",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Jia Xuan Ng",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Justin Lim",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Zachary Goh",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "baby",
-  },
-  {
-    name: "Francis Goh",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Calvan Saw",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Leonard Lim",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Boon Han Charayaphan",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "David Tong",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Jia Kuan Lau",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Andrew Chan",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Shannon Bay",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Joe Ying Ying",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Wei lin Khoo",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
+  { name: "Le Yuan Lee", side: "bride", relation: "XD", rsvp: "yes" },
+  { name: "Jia Xuan Ng", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "Justin Lim", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "Zachary Goh", side: "bride", relation: "IBM", rsvp: "baby" },
+  { name: "Francis Goh", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "Calvan Saw", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "Leonard Lim", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "Boon Han Charayaphan", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "David Tong", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "Jia Kuan Lau", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "Andrew Chan", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "Shannon Bay", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "Joe Ying Ying", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "Wei lin Khoo", side: "bride", relation: "IBM", rsvp: "yes" },
   { name: "Leon Chua", side: "bride", relation: "IBM", rsvp: "yes" },
-  {
-    name: "Hui Lim Ng",
-    side: "bride",
-    relation: "IBM",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Shaine Wang",
-    side: "bride",
-    relation: "Overseas",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Ka Chon Ho",
-    side: "bride",
-    relation: "Overseas",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Sandy Huang",
-    side: "bride",
-    relation: "Overseas",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Amber Lin",
-    side: "bride",
-    relation: "Overseas",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Shi Ting Chen",
-    side: "bride",
-    relation: "Overseas",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Garry Hsu",
-    side: "bride",
-    relation: "Overseas",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Yen Yen Woo",
-    side: "bride",
-    relation: "Yumcha",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Doris Ng",
-    side: "bride",
-    relation: "Drinking",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Eddie Yu",
-    side: "bride",
-    relation: "Drinking",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Maria Ng",
-    side: "bride",
-    relation: "Drinking",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Felicia Ng",
-    side: "bride",
-    relation: "Drinking",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Benjamin Tham",
-    side: "bride",
-    relation: "Drinking",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Jarmaine Oei",
-    side: "bride",
-    relation: "Drinking",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Andrew",
-    side: "bride",
-    relation: "WSS",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Andy",
-    side: "bride",
-    relation: "WSS",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Artino",
-    side: "bride",
-    relation: "WSS",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Melvin",
-    side: "bride",
-    relation: "WSS",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Siew Hua",
-    side: "bride",
-    relation: "WSS",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Zheng jie",
-    side: "bride",
-    relation: "WSS",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Josephine (jo)",
-    side: "bride",
-    relation: "WSS",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Raymond Kwan",
-    side: "bride",
-    relation: "GovTech Im8",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Jonathan Lim",
-    side: "bride",
-    relation: "GovTech Im8",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Hui Min Choong",
-    side: "bride",
-    relation: "GovTech Im8",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Xin de Ng",
-    side: "bride",
-    relation: "GovTech Im8",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Shi ling Lam",
-    side: "bride",
-    relation: "GovTech Im8",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Jenn Lim",
-    side: "bride",
-    relation: "GovTech Im8",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Teck Ren",
-    side: "bride",
-    relation: "GovTech Im8",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Nuwan",
-    side: "bride",
-    relation: "GovTech Im8",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Daren Ng",
-    side: "bride",
-    relation: "GovTech Design",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Lu khei Chong",
-    side: "bride",
-    relation: "GovTech Design",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Tong Hau Lee",
-    side: "bride",
-    relation: "GovTech Design",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Pei Yi Chew",
-    side: "bride",
-    relation: "GovTech Design",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Petrine Tang",
-    side: "bride",
-    relation: "GovTech Design",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Zi Kai Ong",
-    side: "bride",
-    relation: "GovTech Design",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Huda Rafie",
-    side: "bride",
-    relation: "GovTech Design",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Andy Teng",
-    side: "bride",
-    relation: "GovTech Design",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Arthur",
-    side: "bride",
-    relation: "Polyforum",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Benjamin",
-    side: "bride",
-    relation: "Polyforum",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Kai Lin",
-    side: "bride",
-    relation: "Polyforum",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Clara",
-    side: "bride",
-    relation: "Polyforum",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Philp",
-    side: "bride",
-    relation: "Polyforum",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Gina",
-    side: "bride",
-    relation: "Polyforum",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Glenn",
-    side: "bride",
-    relation: "Polyforum",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Jonas",
-    side: "bride",
-    relation: "Polyforum",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Sentosa",
-    side: "bride",
-    relation: "Polyforum",
-   
-    rsvp: "yes",
-  },
-  {
-    name: "Xiao Tian",
-    side: "bride",
-    relation: "Polyforum",
-   
-    rsvp: "yes",
-  },
+  { name: "Hui Lim Ng", side: "bride", relation: "IBM", rsvp: "yes" },
+  { name: "Shaine Wang", side: "bride", relation: "Overseas", rsvp: "yes" },
+  { name: "Ka Chon Ho", side: "bride", relation: "Overseas", rsvp: "yes" },
+  { name: "Sandy Huang", side: "bride", relation: "Overseas", rsvp: "yes" },
+  { name: "Amber Lin", side: "bride", relation: "Overseas", rsvp: "yes" },
+  { name: "Shi Ting Chen", side: "bride", relation: "Overseas", rsvp: "yes" },
+  { name: "Garry Hsu", side: "bride", relation: "Overseas", rsvp: "yes" },
+  { name: "Yen Yen Woo", side: "bride", relation: "Yumcha", rsvp: "yes" },
+  { name: "Doris Ng", side: "bride", relation: "Drinking", rsvp: "yes" },
+  { name: "Eddie Yu", side: "bride", relation: "Drinking", rsvp: "yes" },
+  { name: "Maria Ng", side: "bride", relation: "Drinking", rsvp: "yes" },
+  { name: "Felicia Ng", side: "bride", relation: "Drinking", rsvp: "yes" },
+  { name: "Benjamin Tham", side: "bride", relation: "Drinking", rsvp: "yes" },
+  { name: "Jarmaine Oei", side: "bride", relation: "Drinking", rsvp: "yes" },
+  { name: "Andy", side: "bride", relation: "WSS", rsvp: "yes" },
+  { name: "Artino", side: "bride", relation: "WSS", rsvp: "yes" },
+  { name: "Melvin", side: "bride", relation: "WSS", rsvp: "yes" },
+  { name: "Siew Hua", side: "bride", relation: "WSS", rsvp: "yes" },
+  { name: "Zheng jie", side: "bride", relation: "WSS", rsvp: "yes" },
+  { name: "Josephine (jo)", side: "bride", relation: "WSS", rsvp: "yes" },
+  { name: "Raymond Kwan", side: "bride", relation: "GovTech Im8", rsvp: "yes" },
+  { name: "Jonathan Lim", side: "bride", relation: "GovTech Im8", rsvp: "yes" },
+  { name: "Hui Min Choong", side: "bride", relation: "GovTech Im8", rsvp: "yes" },
+  { name: "Xin de Ng", side: "bride", relation: "GovTech Im8", rsvp: "yes" },
+  { name: "Shi ling Lam", side: "bride", relation: "GovTech Im8", rsvp: "yes" },
+  { name: "Jenn Lim", side: "bride", relation: "GovTech Im8", rsvp: "yes" },
+  { name: "Teck Ren", side: "bride", relation: "GovTech Im8", rsvp: "yes" },
+  { name: "Nuwan", side: "bride", relation: "GovTech Im8", rsvp: "yes" },
+  { name: "Daren Ng", side: "bride", relation: "GovTech Design", rsvp: "yes" },
+  { name: "Lu khei Chong", side: "bride", relation: "GovTech Design", rsvp: "yes" },
+  { name: "Pei Yi Chew", side: "bride", relation: "GovTech Design", rsvp: "yes" },
+  { name: "Petrine Tang", side: "bride", relation: "GovTech Design", rsvp: "yes" },
+  { name: "Zi Kai Ong", side: "bride", relation: "GovTech Design", rsvp: "yes" },
+  { name: "Huda Rafie", side: "bride", relation: "GovTech Design", rsvp: "yes" },
+  { name: "Andy Teng", side: "bride", relation: "GovTech Design", rsvp: "yes" },
+  { name: "Arthur", side: "bride", relation: "Polyforum", rsvp: "yes" },
+  { name: "Benjamin", side: "bride", relation: "Polyforum", rsvp: "yes" },
+  { name: "Kai Lin", side: "bride", relation: "Polyforum", rsvp: "yes" },
+  { name: "Clara", side: "bride", relation: "Polyforum", rsvp: "yes" },
+  { name: "Philp", side: "bride", relation: "Polyforum", rsvp: "yes" },
+  { name: "Gina", side: "bride", relation: "Polyforum", rsvp: "yes" },
+  { name: "Glenn", side: "bride", relation: "Polyforum", rsvp: "yes" },
+  { name: "Jonas", side: "bride", relation: "Polyforum", rsvp: "yes" },
+  { name: "Sentosa", side: "bride", relation: "Polyforum", rsvp: "yes" },
+  { name: "Xiao Tian", side: "bride", relation: "Polyforum", rsvp: "yes" },
+  { name: "Pei Zhi", side: "bride", relation: "Gametize", rsvp: "yes" },
 ];

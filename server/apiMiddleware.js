@@ -1,12 +1,28 @@
-// Connect/Express-style middleware exposing the layout "database" as JSON.
-// Mounted both in the Vite dev server (vite.config.js) and the production
+// Connect/Express-style middleware exposing the layout + guest "databases" as
+// JSON. Mounted both in the Vite dev server (vite.config.js) and the production
 // server (server/index.js), so the API behaves identically in dev and prod.
 //
 //   GET  /api/layout        -> { rev, updatedAt, layout }
 //   PUT  /api/layout         body { layout }  -> { rev, updatedAt }
 //   POST /api/layout/reset  -> { rev, updatedAt, layout }
+//
+//   GET    /api/guests           -> [ guest, ... ]
+//   PUT    /api/guests/:id        body <guest>  -> { guest, bumped: guest|null }
+//   DELETE /api/guests/:id       -> { ok: true }
+//   POST   /api/guests/reset    -> [ guest, ... ]
+//
+// Guests are individual rows, not part of the layout document — see
+// src/useGuests.js for why (so ~200 people can each edit their own row without
+// a whole-document overwrite). Backed by a local JSON file (server/guestStore.js)
+// by default; set GUESTS_TABLE_NAME to point `npm run dev` at a real DynamoDB
+// table instead (server/guestStoreDynamo.js — see DEPLOY-amplify.md §4).
 
 import { getLayout, saveLayout, resetLayout } from './layoutStore.js'
+import * as fileGuestStore from './guestStore.js'
+import * as dynamoGuestStore from './guestStoreDynamo.js'
+
+const guestStore = process.env.GUESTS_TABLE_NAME ? dynamoGuestStore : fileGuestStore
+const { listGuests, upsertGuest, deleteGuest, resetGuests } = guestStore
 
 function send(res, code, body) {
   res.statusCode = code
@@ -46,6 +62,27 @@ export async function layoutApi(req, res, next) {
 
     if (url === '/api/layout/reset' && req.method === 'POST') {
       return send(res, 200, await resetLayout())
+    }
+
+    if (url === '/api/guests' && req.method === 'GET') {
+      return send(res, 200, await listGuests())
+    }
+
+    if (url === '/api/guests/reset' && req.method === 'POST') {
+      return send(res, 200, await resetGuests())
+    }
+
+    const guestMatch = url.match(/^\/api\/guests\/([^/]+)$/)
+    if (guestMatch && req.method === 'PUT') {
+      const id = decodeURIComponent(guestMatch[1])
+      const body = JSON.parse((await readBody(req)) || '{}')
+      if (!body || typeof body.name !== 'string') {
+        return send(res, 400, { error: 'invalid guest' })
+      }
+      return send(res, 200, await upsertGuest({ ...body, id }))
+    }
+    if (guestMatch && req.method === 'DELETE') {
+      return send(res, 200, await deleteGuest(decodeURIComponent(guestMatch[1])))
     }
 
     return send(res, 404, { error: 'not found' })
