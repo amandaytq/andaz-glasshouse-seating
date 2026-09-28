@@ -17,8 +17,14 @@ const TABS = [
 // this page can check a guest in, so door staff don't need the admin password
 // just to mark arrivals.
 export function GuestListPage() {
-  const { guests, loading: guestsLoading, patchGuest } = useGuests()
+  const { guests: allGuests, loading: guestsLoading, patchGuest } = useGuests()
   const { layout, loading: layoutLoading } = useLayout()
+  // The couple themselves aren't "guests" — leave Amanda and Jeremiah out of
+  // this list entirely (counts, filters, search, everything).
+  const guests = useMemo(
+    () => allGuests.filter((g) => g.role !== 'bride' && g.role !== 'groom'),
+    [allGuests],
+  )
   const [side, setSide] = useState('all')
   const [category, setCategory] = useState('all')
   const [query, setQuery] = useState('')
