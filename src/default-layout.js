@@ -131,19 +131,23 @@ export function buildDefaultLayout() {
         active: true,
         color: "#d0d4d9",
       },
-      // Tucked in the gap between the stage's top edge (y 21.0) and Table 9's
-      // bottom edge (y 16.8), aligned with the stage's own x-span — beside the
-      // stage, on the Table 9 side of it.
+      // In the open space to the stage's left (nothing else in the layout
+      // extends past the stage's own left edge, x 7.4), at Table 9's height
+      // — beside the stage, on the Table 9 side, with a real ~1ft gap from
+      // it (the direct gap above the stage is only 4.2ft, too tight for this
+      // box at 1.5x size plus clearance). Portrait (widthFt > lengthFt) and
+      // labelAngle 270, matching the stage's own orientation.
       {
         id: id("f"),
         kind: "furniture",
         shape: "rect",
         name: "Live Band",
-        x: 13.7,
-        y: 18.9,
+        x: 4.5,
+        y: 19.95,
         rotation: 0,
-        lengthFt: 10,
-        widthFt: 3.5,
+        labelAngle: 270,
+        lengthFt: 3.75,
+        widthFt: 5.7,
         diameterFt: 6,
         pax: 0,
         seating: false,

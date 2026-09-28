@@ -3,6 +3,7 @@ import { useLayout } from '../hooks/use-layout.js'
 import { useGuests } from '../hooks/use-guests.js'
 import { FloorPlan } from '../views/floor-plan.jsx'
 import { Inspector } from '../views/inspector.jsx'
+import { seatingToCsv, downloadCsv } from '../views/guest-manager.jsx'
 import { DEFAULT_TABLE_HEIGHT_FT, DEFAULT_ROUND_DIAMETER_FT } from '../default-layout.js'
 
 export function SeatingPlannerPage({ onHome }) {
@@ -117,6 +118,14 @@ export function SeatingPlannerPage({ onHome }) {
   }, [layout, seatNamesByTable])
 
   const displayLayout = layout ? { ...layout, items: displayItems } : layout
+
+  const exportTables = useMemo(
+    () =>
+      displayItems
+        .filter((it) => it.kind === 'table')
+        .map((it) => ({ id: it.id, name: it.name, pax: it.pax, seatNames: it.seatNames })),
+    [displayItems],
+  )
 
   const selected = displayItems.find((it) => it.id === selectedId) || null
 
@@ -371,6 +380,12 @@ export function SeatingPlannerPage({ onHome }) {
           <span className="sep" />
           <button onClick={handleExport}>Export</button>
           <button onClick={() => fileInput.current?.click()}>Import</button>
+          <button
+            disabled={!exportTables.length}
+            onClick={() => downloadCsv(seatingToCsv(exportTables), 'glasshouse-seating-chart.csv')}
+          >
+            Export CSV
+          </button>
           <input
             ref={fileInput}
             type="file"
@@ -482,9 +497,7 @@ export function SeatingPlannerPage({ onHome }) {
           onReorderSeat={handleReorderSeat}
           onSeatGuest={handleSeatGuest}
           onClearTable={clearTable}
-          tables={displayItems
-            .filter((it) => it.kind === 'table')
-            .map((it) => ({ id: it.id, name: it.name, pax: it.pax, seatNames: it.seatNames }))}
+          tables={exportTables}
           onSwapSeats={handleSwapSeats}
           onFillByRelation={handleFillByRelation}
           onChange={updateItem}

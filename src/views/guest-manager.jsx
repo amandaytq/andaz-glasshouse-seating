@@ -20,7 +20,7 @@ const csvCell = (v) => {
 // floor-plan order and seat number ascending within each table — a seating
 // chart for printing table cards / place settings, not a guest-list dump.
 // Columns: Table, Seat, Name
-function seatingToCsv(tables) {
+export function seatingToCsv(tables) {
   const lines = [['Table', 'Seat', 'Name'].join(',')]
   for (const t of tables) {
     const pax = Math.max(0, Math.round(Number(t.pax) || 0))
@@ -32,7 +32,7 @@ function seatingToCsv(tables) {
   return lines.join('\r\n')
 }
 
-function downloadCsv(text, filename) {
+export function downloadCsv(text, filename) {
   const blob = new Blob(['﻿' + text], { type: 'text/csv;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -194,16 +194,7 @@ export function GuestManager({
     <div className="guestmgr">
       <div className="guestmgr-head">
         <strong>Guest list</strong>
-        <span>
-          <span className="field-hint">{guests.length} total</span>
-          <button
-            className="mini"
-            disabled={!tables.length}
-            onClick={() => downloadCsv(seatingToCsv(tables), 'glasshouse-seating-chart.csv')}
-          >
-            export CSV
-          </button>
-        </span>
+        <span className="field-hint">{guests.length} total</span>
       </div>
 
       <input
