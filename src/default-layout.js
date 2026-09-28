@@ -131,6 +131,25 @@ export function buildDefaultLayout() {
         active: true,
         color: "#d0d4d9",
       },
+      // Tucked in the gap between the stage's top edge (y 21.0) and Table 9's
+      // bottom edge (y 16.8), aligned with the stage's own x-span — beside the
+      // stage, on the Table 9 side of it.
+      {
+        id: id("f"),
+        kind: "furniture",
+        shape: "rect",
+        name: "Live Band",
+        x: 13.7,
+        y: 18.9,
+        rotation: 0,
+        lengthFt: 10,
+        widthFt: 3.5,
+        diameterFt: 6,
+        pax: 0,
+        seating: false,
+        active: true,
+        color: "#f0d9a8",
+      },
 
       // ---- Aisle space -------------------------------------------------
       {
