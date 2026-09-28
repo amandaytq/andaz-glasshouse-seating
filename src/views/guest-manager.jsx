@@ -16,49 +16,18 @@ const csvCell = (v) => {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
 }
 
-// One CSV, rows sorted by side then table then name.  Columns:
-// Side, Name, Relation, Meal, Afterparty, Arrived, Parking Coupon, Table, Seat
-function guestsToCsv(guests, seatedNames) {
-  const rows = guests
-    .map((g) => {
-      const at = seatedNames?.get(g.name)
-      return {
-        side: g.side === 'bride' ? "Bride's side" : "Groom's side",
-        name: g.name,
-        relation: g.relation || '',
-        meal: MEAL_LABEL[g.meal] || MEAL_LABEL.chinese,
-        afterparty: g.afterparty ? 'Yes' : 'No',
-        arrived: g.arrived ? 'Yes' : 'No',
-        parking: g.needsParking ? 'Yes' : 'No',
-        table: at?.table || '',
-        seat: at?.seat || '',
-        _sk: g.side === 'bride' ? 0 : 1,
-      }
-    })
-    .sort(
-      (a, b) =>
-        a._sk - b._sk ||
-        String(a.table).localeCompare(String(b.table), undefined, { numeric: true }) ||
-        a.name.localeCompare(b.name),
-    )
-  const header = [
-    'Side',
-    'Name',
-    'Relation',
-    'Meal',
-    'Afterparty',
-    'Arrived',
-    'Parking Coupon',
-    'Table',
-    'Seat',
-  ]
-  const lines = [header.join(',')]
-  for (const r of rows) {
-    lines.push(
-      [r.side, r.name, r.relation, r.meal, r.afterparty, r.arrived, r.parking, r.table, r.seat]
-        .map(csvCell)
-        .join(','),
-    )
+// One CSV, one row per SEAT (including empty ones), grouped by table in
+// floor-plan order and seat number ascending within each table — a seating
+// chart for printing table cards / place settings, not a guest-list dump.
+// Columns: Table, Seat, Name
+function seatingToCsv(tables) {
+  const lines = [['Table', 'Seat', 'Name'].join(',')]
+  for (const t of tables) {
+    const pax = Math.max(0, Math.round(Number(t.pax) || 0))
+    for (let i = 0; i < pax; i++) {
+      const name = (t.seatNames && t.seatNames[i]) || ''
+      lines.push([t.name, i + 1, name].map(csvCell).join(','))
+    }
   }
   return lines.join('\r\n')
 }
@@ -229,8 +198,8 @@ export function GuestManager({
           <span className="field-hint">{guests.length} total</span>
           <button
             className="mini"
-            disabled={!guests.length}
-            onClick={() => downloadCsv(guestsToCsv(guests, seatedNames), 'glasshouse-guest-list.csv')}
+            disabled={!tables.length}
+            onClick={() => downloadCsv(seatingToCsv(tables), 'glasshouse-seating-chart.csv')}
           >
             export CSV
           </button>

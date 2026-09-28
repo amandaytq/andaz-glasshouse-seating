@@ -482,7 +482,9 @@ export function SeatingPlannerPage({ onHome }) {
           onReorderSeat={handleReorderSeat}
           onSeatGuest={handleSeatGuest}
           onClearTable={clearTable}
-          tables={displayItems.filter((it) => it.kind === 'table').map((it) => ({ id: it.id, name: it.name }))}
+          tables={displayItems
+            .filter((it) => it.kind === 'table')
+            .map((it) => ({ id: it.id, name: it.name, pax: it.pax, seatNames: it.seatNames }))}
           onSwapSeats={handleSwapSeats}
           onFillByRelation={handleFillByRelation}
           onChange={updateItem}
