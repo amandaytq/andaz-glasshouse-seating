@@ -184,9 +184,9 @@ export function useGuests() {
     (id, patch) => {
       setGuests((prev) => {
         let p = patch
-        if (typeof patch.name === 'string' && patch.name.trim()) {
+        if (typeof patch.name === 'string' && patch.name) {
           const cur = prev.find((g) => g.id === id)
-          const name = uniqueName(prev, patch.name.trim(), patch.relation ?? cur?.relation, id)
+          const name = uniqueName(prev, patch.name, patch.relation ?? cur?.relation, id)
           if (name !== patch.name) p = { ...patch, name }
         }
         return prev.map((g) => (g.id === id ? { ...g, ...p } : g))

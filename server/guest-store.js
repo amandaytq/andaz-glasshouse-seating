@@ -65,7 +65,7 @@ export function upsertGuest(patch) {
     const prev = cache.get(id) || {}
     const guest = {
       id,
-      name: String(patch.name ?? prev.name ?? '').trim(),
+      name: String(patch.name ?? prev.name ?? ''),
       side: patch.side === 'bride' || prev.side === 'bride' ? 'bride' : 'groom',
       relation: String(patch.relation ?? prev.relation ?? '').trim(),
       rsvp: patch.rsvp ?? prev.rsvp ?? 'yes',

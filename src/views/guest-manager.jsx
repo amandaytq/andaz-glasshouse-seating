@@ -1,8 +1,4 @@
 import { useMemo, useState } from 'react'
-import { BRIDE_GUESTS } from '../data/bride-guests.js'
-import { GROOM_GUESTS } from '../data/groom-guests.js'
-
-const BUILTIN = { bride: BRIDE_GUESTS, groom: GROOM_GUESTS }
 
 const SIDES = [
   { key: 'bride', label: "Bride's side" },
@@ -225,11 +221,6 @@ export function GuestManager({
     setPasteSide(null)
   }
 
-  // one-click import of a built-in list — skips names already present
-  const have = new Set(guests.map((g) => g.name.toLowerCase()))
-  const newFromBuiltin = (side) => BUILTIN[side].filter((g) => !have.has(g.name.toLowerCase()))
-  const loadBuiltin = (side) => onBulkAdd(newFromBuiltin(side))
-
   return (
     <div className="guestmgr">
       <div className="guestmgr-head">
@@ -245,15 +236,6 @@ export function GuestManager({
           </button>
         </span>
       </div>
-
-      {SIDES.map(({ key, label }) => {
-        const n = newFromBuiltin(key).length
-        return n > 0 ? (
-          <button key={key} className="guestmgr-load" onClick={() => loadBuiltin(key)}>
-            + Load {label} list ({n} new)
-          </button>
-        ) : null
-      })}
 
       <input
         className="guestmgr-search"
