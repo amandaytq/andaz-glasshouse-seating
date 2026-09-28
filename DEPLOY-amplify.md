@@ -49,9 +49,19 @@ Amplify console → **App settings → Rewrites and redirects** → add, in this
 | Source address | Target address | Type |
 |---|---|---|
 | `/api/<*>` | `https://<your-lambda-function-url>/api/<*>` | `200 (Rewrite)` |
-| `/<*>` | `/index.html` | `404-200 (Rewrite)` |
+| `</^[^.]+$|\.(?!(css\|gif\|ico\|jpg\|jpeg\|js\|png\|txt\|svg\|woff\|woff2\|ttf\|map\|json)$)([^.]+$)/>` | `/index.html` | `200 (Rewrite)` |
 
 (The `/api` rule must come first so it isn't swallowed by the SPA catch-all.)
+
+⚠️ Use the regex rule above (Amplify's own recommended SPA pattern), **not**
+`/<*> → /index.html (404-200)`. The `404-200` conditional rewrite looks right
+but silently fails for every client-side route (`/assign-seats`, `/guest-list`,
+…): S3 redirects a bare extensionless path to a trailing-slash version
+*before* Amplify gets a chance to detect the 404, so the rewrite never fires —
+direct navigation, a refresh, or a bookmark on any route but `/` 404s. The
+regex rule rewrites unconditionally (skipping the 404-detection step
+entirely) while still leaving real static files (`.js`, `.css`, images, …)
+alone.
 
 ---
 
