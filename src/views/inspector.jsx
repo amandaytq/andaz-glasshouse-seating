@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { lengthFromPax } from './defaultLayout.js'
-import { GuestManager } from './GuestManager.jsx'
-import { Combobox } from './Combobox.jsx'
+import { lengthFromPax } from '../default-layout.js'
+import { GuestManager } from './guest-manager.jsx'
+import { Combobox } from '../components/combobox.jsx'
 
 // Right-hand panel for editing the selected item.
 export function Inspector({

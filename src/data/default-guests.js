@@ -1,12 +1,12 @@
 // Builds the default GUEST ROWS (one per person) for seeding a fresh guest
 // store (local file store, or a new DynamoDB table). Combines the bride/groom
-// rosters with the seat arrangement authored in defaultLayout.js's table
+// rosters with the seat arrangement authored in default-layout.js's table
 // definitions (their `seatNames` extras), so a fresh seed reproduces the last
 // synced seating plan.
 
-import { BRIDE_GUESTS } from './brideGuests.js'
-import { GROOM_GUESTS } from './groomGuests.js'
-import { buildDefaultLayout } from '../defaultLayout.js'
+import { BRIDE_GUESTS } from './bride-guests.js'
+import { GROOM_GUESTS } from './groom-guests.js'
+import { buildDefaultLayout } from '../default-layout.js'
 
 export function buildDefaultGuests() {
   const layout = buildDefaultLayout()
@@ -29,6 +29,9 @@ export function buildDefaultGuests() {
       relation: g.relation || '',
       rsvp: g.rsvp || 'yes',
       meal: g.meal || 'chinese',
+      afterparty: !!g.afterparty,
+      arrived: !!g.arrived,
+      needsParking: !!g.needsParking,
       ...(g.role ? { role: g.role } : {}),
       tableId: seat.tableId ?? null,
       seatIndex: seat.seatIndex ?? null,

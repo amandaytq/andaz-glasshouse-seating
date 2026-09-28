@@ -8,10 +8,10 @@ import {
   feetToPt,
   ptToFeet,
   outlinePath,
-} from "./venue.js";
-import floorplanUrl from "./assets/floorplan.png";
-import floorplanPlainUrl from "./assets/floorplan_plain.png";
-import { TableItem } from "./TableItem.jsx";
+} from "../venue.js";
+import floorplanUrl from "../assets/floorplan.png";
+import floorplanPlainUrl from "../assets/floorplan_plain.png";
+import { TableItem } from "../components/table-item.jsx";
 
 // Map a pointer event to page-point coordinates using the live SVG CTM.
 function clientToPt(svg, clientX, clientY) {

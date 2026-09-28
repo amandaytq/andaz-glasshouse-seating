@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { BRIDE_GUESTS } from './data/brideGuests.js'
-import { GROOM_GUESTS } from './data/groomGuests.js'
+import { BRIDE_GUESTS } from '../data/bride-guests.js'
+import { GROOM_GUESTS } from '../data/groom-guests.js'
 
 const BUILTIN = { bride: BRIDE_GUESTS, groom: GROOM_GUESTS }
 
@@ -21,7 +21,7 @@ const csvCell = (v) => {
 }
 
 // One CSV, rows sorted by side then table then name.  Columns:
-// Side, Name, Relation, Meal, Table, Seat
+// Side, Name, Relation, Meal, Afterparty, Arrived, Parking Coupon, Table, Seat
 function guestsToCsv(guests, seatedNames) {
   const rows = guests
     .map((g) => {
@@ -31,6 +31,9 @@ function guestsToCsv(guests, seatedNames) {
         name: g.name,
         relation: g.relation || '',
         meal: MEAL_LABEL[g.meal] || MEAL_LABEL.chinese,
+        afterparty: g.afterparty ? 'Yes' : 'No',
+        arrived: g.arrived ? 'Yes' : 'No',
+        parking: g.needsParking ? 'Yes' : 'No',
         table: at?.table || '',
         seat: at?.seat || '',
         _sk: g.side === 'bride' ? 0 : 1,
@@ -42,10 +45,24 @@ function guestsToCsv(guests, seatedNames) {
         String(a.table).localeCompare(String(b.table), undefined, { numeric: true }) ||
         a.name.localeCompare(b.name),
     )
-  const header = ['Side', 'Name', 'Relation', 'Meal', 'Table', 'Seat']
+  const header = [
+    'Side',
+    'Name',
+    'Relation',
+    'Meal',
+    'Afterparty',
+    'Arrived',
+    'Parking Coupon',
+    'Table',
+    'Seat',
+  ]
   const lines = [header.join(',')]
   for (const r of rows) {
-    lines.push([r.side, r.name, r.relation, r.meal, r.table, r.seat].map(csvCell).join(','))
+    lines.push(
+      [r.side, r.name, r.relation, r.meal, r.afterparty, r.arrived, r.parking, r.table, r.seat]
+        .map(csvCell)
+        .join(','),
+    )
   }
   return lines.join('\r\n')
 }
@@ -90,7 +107,7 @@ export function parseGuestPaste(text, side) {
 
 // guests: rows from useGuests(). onUpdateGuest/onRemoveGuest/onAddGuest/onBulkAdd
 // are useGuests operations — each save is scoped to the one row it touches, so
-// 200 people editing at once never overwrite each other's edits (see useGuests.js).
+// 200 people editing at once never overwrite each other's edits (see use-guests.js).
 export function GuestManager({
   guests,
   onUpdateGuest,
@@ -155,6 +172,27 @@ export function GuestManager({
           onClick={() => onUpdateGuest(g.id, { meal: nextMeal(g.meal || 'chinese') })}
         >
           {MEAL_BADGE[g.meal] || MEAL_BADGE.chinese}
+        </button>
+        <button
+          className={`g-ap${g.afterparty ? ' is-yes' : ''}`}
+          title={`Afterparty: ${g.afterparty ? 'Yes' : 'No'} (click to toggle)`}
+          onClick={() => onUpdateGuest(g.id, { afterparty: !g.afterparty })}
+        >
+          {g.afterparty ? '🎉' : '—'}
+        </button>
+        <button
+          className={`g-arrived${g.arrived ? ' is-yes' : ''}`}
+          title={`Arrived: ${g.arrived ? 'Yes' : 'No'} (click to toggle)`}
+          onClick={() => onUpdateGuest(g.id, { arrived: !g.arrived })}
+        >
+          {g.arrived ? '✓' : '—'}
+        </button>
+        <button
+          className={`g-parking${g.needsParking ? ' is-yes' : ''}`}
+          title={`Needs parking coupon: ${g.needsParking ? 'Yes' : 'No'} (click to toggle)`}
+          onClick={() => onUpdateGuest(g.id, { needsParking: !g.needsParking })}
+        >
+          {g.needsParking ? '🅿️' : '—'}
         </button>
         <select
           className={`g-table-sel${seatedAt ? '' : ' is-unseated'}`}

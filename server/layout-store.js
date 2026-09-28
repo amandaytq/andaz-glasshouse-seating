@@ -5,7 +5,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildDefaultLayout } from '../src/defaultLayout.js'
+import { buildDefaultLayout } from '../src/default-layout.js'
 
 const dir = path.dirname(fileURLToPath(import.meta.url))
 const DATA_DIR = process.env.LAYOUT_DATA_DIR || path.join(dir, 'data')

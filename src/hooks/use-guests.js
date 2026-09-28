@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { buildDefaultGuests } from './data/defaultGuests.js'
+import { buildDefaultGuests } from '../data/default-guests.js'
 
 // Guests live as individual rows (one per person) — { id, name, side, relation,
 // rsvp, meal, role?, tableId, seatIndex, updatedAt } — so ~200 people can each
-// edit their own row without clobbering anyone else's. Unlike src/useLayout.js's
+// edit their own row without clobbering anyone else's. Unlike src/hooks/use-layout.js's
 // table/furniture document, there is no single "the guest list" blob and no
 // document-level undo/redo here: every field change saves itself, per row, on
 // its own short debounce, and a poll periodically adopts rows other people
 // changed (skipping any row this tab has a pending or in-flight edit for).
-// Server side: server/guestStore.js (local dev, file-backed) and lambda/index.mjs
+// Server side: server/guest-store.js (local dev, file-backed) and lambda/index.mjs
 // (DynamoDB) — both enforce "a guest can only be in one seat" by bumping
 // (clearing) whoever else is in a seat a write claims.
 const API = import.meta.env.VITE_GUESTS_API || '/api/guests'
@@ -208,6 +208,9 @@ export function useGuests() {
         relation: '',
         rsvp: 'yes',
         meal: 'chinese',
+        afterparty: false,
+        arrived: false,
+        needsParking: false,
         tableId: null,
         seatIndex: null,
         ...patch,
@@ -243,6 +246,9 @@ export function useGuests() {
           relation: r.relation || '',
           rsvp: r.rsvp || 'yes',
           meal: r.meal || 'chinese',
+          afterparty: !!r.afterparty,
+          arrived: !!r.arrived,
+          needsParking: !!r.needsParking,
           tableId: null,
           seatIndex: null,
         })
@@ -278,7 +284,7 @@ export function useGuests() {
 
   // Wholesale replace the guest list (JSON import). Every row in `list` is
   // upserted (saved); any row that existed before and isn't in `list` anymore
-  // is deleted. Used only by App.jsx's Import — everyday edits go through the
+  // is deleted. Used only by SeatingPlannerPage (pages/seating-planner-page.jsx)'s Import — everyday edits go through the
   // per-row ops above.
   const replaceGuests = useCallback(
     (list) => {
@@ -321,10 +327,10 @@ export function useGuests() {
   }, [])
 
   // ---- seat operations ----------------------------------------------------
-  // These operate on guest rows only; table pax/relations live in useLayout.js
-  // now, so callers (App.jsx) pass in whatever table info each op needs and
+  // These operate on guest rows only; table pax/relations live in use-layout.js
+  // now, so callers (SeatingPlannerPage (pages/seating-planner-page.jsx)) pass in whatever table info each op needs and
   // separately keep the table's own extras (babySeats, relations tag) in step
-  // via useLayout.js's reorderBabySeats / setTableRelations.
+  // via use-layout.js's reorderBabySeats / setTableRelations.
 
   // Put `name` in table `tableId`'s seat `seatIndex`; whoever else is in that
   // exact seat is unseated. Pass a falsy name to just clear the seat.

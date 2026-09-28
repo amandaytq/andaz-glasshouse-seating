@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { layoutApi } from './server/apiMiddleware.js'
+import { layoutApi } from './server/api-middleware.js'
 
 // Serves /api/layout from the same file-backed store in dev as in production,
 // so `npm run dev` and a deployed build behave identically.

@@ -2,7 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 // Lightweight searchable single-select. `groups` = [{ label, options: [{ value,
 // label, hint }] }]. Calls onChange(value) — '' means cleared.
-export function Combobox({ value, groups, onChange, placeholder = 'Search…', inputRef }) {
+export function Combobox({
+  value,
+  groups,
+  onChange,
+  placeholder = 'Search…',
+  emptyLabel = '— empty —',
+  inputRef,
+}) {
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const [hi, setHi] = useState(0)
@@ -134,7 +141,7 @@ export function Combobox({ value, groups, onChange, placeholder = 'Search…', i
               pick('')
             }}
           >
-            — empty —
+            {emptyLabel}
           </button>
           {filtered.length === 0 && <div className="cbx-none">no match</div>}
           {filtered.map((g) => (

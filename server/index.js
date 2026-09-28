@@ -9,7 +9,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
 import express from 'express'
-import { layoutApi } from './apiMiddleware.js'
+import { layoutApi } from './api-middleware.js'
 
 const dir = path.dirname(fileURLToPath(import.meta.url))
 const dist = path.join(dir, '..', 'dist')

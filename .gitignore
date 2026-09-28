@@ -8,5 +8,5 @@ server/data/
 # deploy bundles
 glasshouse-web.zip
 layout-lambda.zip
-lambda/defaultLayout.js
+lambda/default-layout.js
 lambda/data/

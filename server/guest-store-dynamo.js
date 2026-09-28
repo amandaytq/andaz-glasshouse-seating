@@ -1,9 +1,10 @@
 // DynamoDB-backed guest store for LOCAL DEV, used instead of the file-backed
-// server/guestStore.js when GUESTS_TABLE_NAME is set in the environment — lets
-// you point `npm run dev` at the real table before deploying, rather than only
-// ever testing against the local JSON file. Logic here is deliberately a copy
-// of lambda/index.mjs's guest functions (same reasoning as guestStore.js vs.
-// lambda: kept in sync by hand rather than shared across a packaging boundary).
+// server/guest-store.js when GUESTS_TABLE_NAME is set in the environment —
+// lets you point `npm run dev` at the real table before deploying, rather
+// than only ever testing against the local JSON file. Logic here is
+// deliberately a copy of lambda/index.mjs's guest functions (same reasoning
+// as guest-store.js vs. lambda: kept in sync by hand rather than shared
+// across a packaging boundary).
 //
 // Needs AWS credentials visible to the process (e.g. `aws configure`, or
 // AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY in the shell) and GUESTS_TABLE_NAME
@@ -17,7 +18,7 @@ import {
   DeleteItemCommand,
   BatchWriteItemCommand,
 } from '@aws-sdk/client-dynamodb'
-import { buildDefaultGuests } from '../src/data/defaultGuests.js'
+import { buildDefaultGuests } from '../src/data/default-guests.js'
 
 const REGION = process.env.AWS_REGION || process.env.GUESTS_TABLE_REGION || 'ap-southeast-1'
 const ddb = new DynamoDBClient({ region: REGION })
@@ -31,6 +32,9 @@ function marshalGuest(g) {
     relation: { S: String(g.relation ?? '') },
     rsvp: { S: String(g.rsvp ?? 'yes') },
     meal: { S: String(g.meal ?? 'chinese') },
+    afterparty: { BOOL: !!g.afterparty },
+    arrived: { BOOL: !!g.arrived },
+    needsParking: { BOOL: !!g.needsParking },
     tableId: g.tableId != null ? { S: String(g.tableId) } : { NULL: true },
     seatIndex: g.seatIndex != null ? { N: String(g.seatIndex) } : { NULL: true },
     updatedAt: { S: g.updatedAt || new Date().toISOString() },
@@ -48,6 +52,9 @@ function unmarshalGuest(item) {
     relation: item.relation?.S || '',
     rsvp: item.rsvp?.S || 'yes',
     meal: item.meal?.S || 'chinese',
+    afterparty: item.afterparty?.BOOL ?? false,
+    arrived: item.arrived?.BOOL ?? false,
+    needsParking: item.needsParking?.BOOL ?? false,
     tableId: item.tableId?.S ?? null,
     seatIndex: item.seatIndex?.N != null ? Number(item.seatIndex.N) : null,
     updatedAt: item.updatedAt?.S || null,
@@ -99,6 +106,9 @@ export async function upsertGuest(patch) {
     relation: String(patch.relation ?? prev.relation ?? '').trim(),
     rsvp: patch.rsvp ?? prev.rsvp ?? 'yes',
     meal: patch.meal ?? prev.meal ?? 'chinese',
+    afterparty: patch.afterparty !== undefined ? !!patch.afterparty : !!prev.afterparty,
+    arrived: patch.arrived !== undefined ? !!patch.arrived : !!prev.arrived,
+    needsParking: patch.needsParking !== undefined ? !!patch.needsParking : !!prev.needsParking,
     tableId: patch.tableId !== undefined ? patch.tableId : (prev.tableId ?? null),
     seatIndex: patch.seatIndex !== undefined ? patch.seatIndex : (prev.seatIndex ?? null),
     updatedAt: new Date().toISOString(),

@@ -685,7 +685,7 @@ button.mini {
 
 .guestmgr-row {
   display: grid;
-  grid-template-columns: 1fr 0.7fr 1.5em 5.6em 14px;
+  grid-template-columns: 1fr 0.7fr 1.5em 1.5em 1.5em 1.5em 5.6em 14px;
   gap: 4px;
   align-items: center;
   padding: 2px 0;
@@ -737,6 +737,48 @@ button.mini {
   background: #dbeafe;
   color: #1d4ed8;
   border-color: #c3d9fb;
+}
+.g-ap {
+  flex: 0 0 auto;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+  padding: 0;
+  text-align: center;
+  font-size: 10px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  cursor: pointer;
+  background: #eef1f4;
+  color: var(--muted);
+}
+.g-ap.is-yes {
+  background: #fdf2c9;
+  border-color: #f0dca0;
+}
+.g-arrived,
+.g-parking {
+  flex: 0 0 auto;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+  padding: 0;
+  text-align: center;
+  font-size: 10px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  cursor: pointer;
+  background: #eef1f4;
+  color: var(--muted);
+}
+.g-arrived.is-yes {
+  background: #dcfce7;
+  border-color: #bbf0cc;
+  color: #15803d;
+}
+.g-parking.is-yes {
+  background: #ede9fe;
+  border-color: #ddd3fb;
 }
 .guestmgr-row .g-del {
   border: none;
@@ -894,6 +936,386 @@ button.mini {
 .rel-chip.rel-bride button {
   color: #a24d75;
 }
+.home-link {
+  margin-right: 4px;
+}
+
+/* ---- navbar (public pages) --------------------------------------------- */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.navbar-brand {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+}
+.navbar-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.navbar-link {
+  font-size: 14px;
+  padding: 7px 14px;
+  border-radius: 999px;
+}
+.navbar-link.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ---- password gate: a real modal overlay, not a full page --------------- */
+.pwgate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 32, 0.55);
+  padding: 16px;
+}
+.pwgate-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 28px 26px;
+  width: 300px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.pwgate-card strong {
+  font-size: 16px;
+}
+.pwgate-input {
+  font: inherit;
+  font-size: 16px; /* >=16px avoids iOS Safari auto-zoom on focus */
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.pwgate-input.is-error {
+  border-color: var(--danger);
+}
+.pwgate-error {
+  color: var(--danger);
+  font-size: 14px;
+  margin: 0;
+}
+.pwgate-card button[type='submit'] {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  padding: 9px 11px;
+  font-size: 14px;
+}
+.pwgate-card button[type='submit']:hover {
+  background: #1a5fc9;
+}
+
+/* ---- confirm dialog (e.g. "undo check-in?") ------------------------------ */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 32, 0.55);
+  padding: 16px;
+}
+.confirm-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px 24px;
+  width: 320px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.confirm-card strong {
+  font-size: 16px;
+}
+.confirm-card .field-hint {
+  font-size: 14px;
+}
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+.confirm-actions button {
+  font-size: 14px;
+  padding: 8px 14px;
+}
+
+/* ---- public guest list page --------------------------------------------
+   Every font size on this page is 14px or larger (this page is meant to be
+   read on a phone, often by someone who isn't already at a computer), and
+   the table becomes a stack of cards below 640px instead of a cramped
+   horizontally-scrolling grid. */
+.guestlist-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+  font-size: 14px;
+}
+.guestlist-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.guestlist-head strong {
+  font-size: 20px;
+}
+.guestlist-page .field-hint {
+  font-size: 14px;
+}
+.guestlist-tabs {
+  display: flex;
+  gap: 4px;
+  background: #eef1f4;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 14px;
+}
+.guestlist-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 8px;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.guestlist-tab:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+.guestlist-tab.is-active {
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.guestlist-tab.is-active:hover {
+  background: var(--panel);
+}
+.guestlist-tab-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.guestlist-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.guestlist-search {
+  flex: 1;
+  min-width: 160px;
+  font-size: 16px; /* >=16px avoids iOS Safari auto-zoom on focus */
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.guestlist-filters select {
+  font-size: 16px;
+  padding: 9px 34px 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background-color: #fff;
+  /* native select arrows sit flush against the edge in most browsers — draw
+     our own chevron instead, with proper clearance from the border. */
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7683' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+/* the category combobox (components/combobox.jsx) is shared with the admin
+   panel, where it's tuned small (11px) for a cramped sidebar — bump it back
+   up to match the rest of this page. */
+.guestlist-filters .cbx {
+  min-width: 170px;
+}
+.guestlist-filters .cbx-input {
+  font-size: 16px; /* >=16px avoids iOS Safari auto-zoom on focus */
+  padding: 9px 30px 9px 12px;
+}
+.guestlist-filters .cbx-clear {
+  font-size: 18px;
+  right: 6px;
+}
+.guestlist-filters .cbx-menu {
+  font-size: 14px;
+}
+.guestlist-filters .cbx-opt {
+  font-size: 14px;
+  padding: 9px 10px;
+}
+.guestlist-filters .cbx-group-label {
+  font-size: 11px;
+}
+.guestlist-filters .cbx-opt-hint {
+  font-size: 12px;
+}
+.guestlist-filters .cbx-none {
+  font-size: 14px;
+}
+.guestlist-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.guestlist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.guestlist-table th,
+.guestlist-table td {
+  padding: 16px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.guestlist-table th {
+  background: #f4f6f8;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.guestlist-table tr:last-child td {
+  border-bottom: none;
+}
+.guestlist-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 20px !important;
+  white-space: normal !important;
+}
+.ap-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.ap-badge.is-yes {
+  background: #fdf2c9;
+  color: #92650a;
+}
+.ap-badge.is-no {
+  background: #eef1f4;
+  color: var(--muted);
+}
+/* a plain dash for "no" — Yes still gets the coloured pill, No doesn't need one */
+.ap-dash {
+  color: var(--muted);
+  font-size: 14px;
+}
+/* the Arrived badge is a real button (anyone can check a guest in) */
+.ap-badge-btn {
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+  cursor: pointer;
+  font: inherit;
+}
+.ap-badge-btn:hover {
+  background: #1a5fc9;
+  border-color: #1a5fc9;
+}
+
+/* Phones: cards instead of a scrolling table — each row becomes a card, each
+   cell a labelled line (label comes from the cell's data-label attribute). */
+@media (max-width: 640px) {
+  .guestlist-page {
+    padding: 16px 16px 32px;
+  }
+  .guestlist-filters {
+    flex-direction: column;
+  }
+  .guestlist-search,
+  .guestlist-filters select,
+  .guestlist-filters .cbx {
+    width: 100%;
+  }
+  .guestlist-table-wrap {
+    overflow-x: visible;
+    border: none;
+    background: none;
+  }
+  .guestlist-table,
+  .guestlist-table thead,
+  .guestlist-table tbody,
+  .guestlist-table tr,
+  .guestlist-table td {
+    display: block;
+    width: 100%;
+  }
+  .guestlist-table thead {
+    display: none;
+  }
+  .guestlist-table tr {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 14px;
+    margin-bottom: 14px;
+  }
+  .guestlist-table tr:last-child {
+    margin-bottom: 0;
+  }
+  .guestlist-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: none;
+    white-space: normal;
+    text-align: right;
+  }
+  .guestlist-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--muted);
+    text-align: left;
+  }
+  .guestlist-table td:first-child {
+    font-size: 16px;
+    font-weight: 700;
+  }
+}
+
 .rel-chip.rel-groom {
   background: #eef3fd;
   color: #2a5db0;

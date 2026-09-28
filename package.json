@@ -11,7 +11,7 @@
     "start": "node server/index.js",
     "serve": "npm run build && node server/index.js",
     "pack:web": "npm run build && rm -f glasshouse-web.zip && cd dist && zip -qr ../glasshouse-web.zip . && cd .. && echo 'wrote glasshouse-web.zip (contents of dist/)'",
-    "pack:lambda": "rm -rf lambda/data && cp src/defaultLayout.js lambda/defaultLayout.js && cp -R src/data lambda/data && rm -f layout-lambda.zip && cd lambda && zip -qr ../layout-lambda.zip index.mjs defaultLayout.js package.json data && cd .. && echo 'wrote layout-lambda.zip'"
+    "pack:lambda": "rm -rf lambda/data && cp src/default-layout.js lambda/default-layout.js && cp -R src/data lambda/data && rm -f layout-lambda.zip && cd lambda && zip -qr ../layout-lambda.zip index.mjs default-layout.js package.json data && cd .. && echo 'wrote layout-lambda.zip'"
   },
   "dependencies": {
     "express": "^4.19.2",

@@ -90,9 +90,9 @@ function roundTable(name, x, y, pax, diameterFt, extra = {}) {
 export function buildDefaultLayout() {
   uid = 0;
   return {
-    version: 3, // v3: guests live in their own per-row store (see src/useGuests.js),
+    version: 3, // v3: guests live in their own per-row store (see src/hooks/use-guests.js),
     // no longer embedded in the layout document. Tables still carry a
-    // `seatNames` extra below — it's read once by src/data/defaultGuests.js to
+    // `seatNames` extra below — it's read once by src/data/default-guests.js to
     // seed the guest store's tableId/seatIndex; the running app ignores it.
     name: "The Glasshouse — HYBRID v1 (blueprint)",
     view: { ...DEFAULT_VIEW },

@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { rectSeatPositions, roundSeatPositions } from './seatGeometry.js'
+import { rectSeatPositions, roundSeatPositions } from '../seat-geometry.js'
 
 // Renders one layout item in FEET units, centred on (0,0). The parent <g> in
 // FloorPlan applies translate + scale(PT_PER_FOOT) + rotate, so everything here

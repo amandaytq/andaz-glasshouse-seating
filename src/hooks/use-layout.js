@@ -5,7 +5,7 @@ import {
   DEFAULT_TABLE_HEIGHT_FT,
   DEFAULT_ROUND_DIAMETER_FT,
   DEFAULT_VIEW,
-} from './defaultLayout.js'
+} from '../default-layout.js'
 
 // The layout lives on the server (server/data/layout.json) so every visitor of a
 // deployed instance sees the same arrangement. This hook:
@@ -44,7 +44,7 @@ function normalizeItem(item) {
 }
 
 function normalizeLayout(layout) {
-  // `guests` was dropped in v3 (see defaultLayout.js) — strip it explicitly so
+  // `guests` was dropped in v3 (see default-layout.js) — strip it explicitly so
   // an old production layout.json (saved before this refactor, which still has
   // its whole guest roster embedded here) doesn't keep getting silently
   // resaved to S3 forever on every autosave.
@@ -293,7 +293,7 @@ export function useLayout() {
 
   // Move seat `from` to position `to` within one table; the baby-seat flags
   // in between shift to fill the gap. Who's actually seated where lives on
-  // the guest rows now (see useGuests.js's reorderSeats, which moves seatIndex
+  // the guest rows now (see use-guests.js's reorderSeats, which moves seatIndex
   // on the guest side and calls this to keep the table's babySeats in step).
   const reorderBabySeats = useCallback(
     (tableId, from, to) => {
@@ -316,7 +316,7 @@ export function useLayout() {
     [commit],
   )
 
-  // Swap two tables' baby-seat flags (paired with useGuests.js's
+  // Swap two tables' baby-seat flags (paired with use-guests.js's
   // swapTableSeats, which swaps who's actually sitting where).
   const swapBabySeats = useCallback(
     (aId, bId) => {
@@ -339,7 +339,7 @@ export function useLayout() {
   )
 
   // Tag a table with the guest `relations` it's meant to hold (used by
-  // useGuests.js's fillTableByRelations to know who's eligible for the seats).
+  // use-guests.js's fillTableByRelations to know who's eligible for the seats).
   const setTableRelations = useCallback(
     (itemId, relations) => {
       const rels = [...new Set((relations || []).filter(Boolean))]

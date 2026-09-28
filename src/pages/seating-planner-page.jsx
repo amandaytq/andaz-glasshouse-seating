@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useLayout } from './useLayout.js'
-import { useGuests } from './useGuests.js'
-import { FloorPlan } from './FloorPlan.jsx'
-import { Inspector } from './Inspector.jsx'
-import { DEFAULT_TABLE_HEIGHT_FT, DEFAULT_ROUND_DIAMETER_FT } from './defaultLayout.js'
+import { useLayout } from '../hooks/use-layout.js'
+import { useGuests } from '../hooks/use-guests.js'
+import { FloorPlan } from '../views/floor-plan.jsx'
+import { Inspector } from '../views/inspector.jsx'
+import { DEFAULT_TABLE_HEIGHT_FT, DEFAULT_ROUND_DIAMETER_FT } from '../default-layout.js'
 
-export default function App() {
+export function SeatingPlannerPage({ onHome }) {
   const {
     layout,
     loading: layoutLoading,
@@ -92,7 +92,7 @@ export default function App() {
     setSeatFocus({ id, index, at: Date.now() })
   }, [])
 
-  // Guests carry their own tableId/seatIndex now (see useGuests.js); tables no
+  // Guests carry their own tableId/seatIndex now (see use-guests.js); tables no
   // longer own a seatNames array. Rebuild one per table here, purely for
   // rendering (FloorPlan / TableItem / Inspector), so that layer stays untouched.
   const seatNamesByTable = useMemo(() => {
@@ -152,29 +152,27 @@ export default function App() {
     return m
   }, [guests, displayItems])
 
+  // Guest-count-based, not table-capacity-based: a table's `pax` field is its
+  // configured seat capacity, which can legitimately differ from how many
+  // guests actually exist (extra/buffer seats, or a stale pax value) — what
+  // actually matters for planning is how many real guests there are and how
+  // many of them have a seat, both of which now live on the guest rows.
   const stats = useMemo(() => {
+    const totalGuests = guests.length
+    const seatedGuests = guests.filter((g) => g.tableId != null && g.seatIndex != null).length
     const tables = displayItems.filter((it) => it.kind === 'table')
     const activeTables = tables.filter((t) => t.active !== false)
-    const seated = activeTables.filter((t) => t.seating !== false)
-    const totalPax = seated.reduce((s, t) => s + (Number(t.pax) || 0), 0)
-    const assignedPax = seated.reduce((s, t) => {
-      const pax = Math.max(0, Math.round(Number(t.pax) || 0))
-      const named = Array.isArray(t.seatNames)
-        ? t.seatNames.filter((n) => n && String(n).trim()).length
-        : 0
-      return s + Math.min(named, pax)
-    }, 0)
     return {
-      totalPax,
-      assignedPax,
-      unassignedPax: Math.max(0, totalPax - assignedPax),
+      totalPax: totalGuests,
+      assignedPax: seatedGuests,
+      unassignedPax: Math.max(0, totalGuests - seatedGuests),
       activeCount: activeTables.length,
       optionalCount: tables.length - activeTables.length,
       optionalPax: tables
         .filter((t) => t.active === false)
         .reduce((s, t) => s + (Number(t.pax) || 0), 0),
     }
-  }, [displayItems])
+  }, [guests, displayItems])
 
   // keyboard: undo / redo / delete
   useEffect(() => {
@@ -309,7 +307,12 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          <strong>The Glasshouse</strong>
+          {onHome && (
+            <button className="mini home-link" onClick={onHome} title="Back to home">
+              ← Home
+            </button>
+          )}
+          <strong>Amanda &amp; Jeremiah</strong>
           <input
             className="layout-name"
             value={layout.name || ''}
@@ -321,7 +324,7 @@ export default function App() {
         <div className="counters">
           <div className="counter">
             <span className="counter-num">{stats.totalPax}</span>
-            <span className="counter-label">total pax</span>
+            <span className="counter-label">total guests</span>
           </div>
           <div className="counter">
             <span className="counter-num">{stats.assignedPax}</span>

@@ -1,6 +1,7 @@
 // File-backed store for INDIVIDUAL GUEST ROWS (separate from the table/layout
-// document in layoutStore.js). Each guest is its own record — { id, name, side,
-// relation, rsvp, meal, role?, tableId, seatIndex, updatedAt } — so 200 people
+// document in layout-store.js). Each guest is its own record — { id, name, side,
+// relation, rsvp, meal, afterparty, arrived, needsParking, role?, tableId,
+// seatIndex, updatedAt } — so 200 people
 // can edit 200 different rows at once with no whole-document overwrite: a save
 // only ever touches the one row (and, when it changes a seat, the row of
 // whoever it bumped out of that seat).
@@ -12,7 +13,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildDefaultGuests } from '../src/data/defaultGuests.js'
+import { buildDefaultGuests } from '../src/data/default-guests.js'
 
 const dir = path.dirname(fileURLToPath(import.meta.url))
 const DATA_DIR = process.env.LAYOUT_DATA_DIR || path.join(dir, 'data')
@@ -69,6 +70,9 @@ export function upsertGuest(patch) {
       relation: String(patch.relation ?? prev.relation ?? '').trim(),
       rsvp: patch.rsvp ?? prev.rsvp ?? 'yes',
       meal: patch.meal ?? prev.meal ?? 'chinese',
+      afterparty: patch.afterparty !== undefined ? !!patch.afterparty : !!prev.afterparty,
+      arrived: patch.arrived !== undefined ? !!patch.arrived : !!prev.arrived,
+      needsParking: patch.needsParking !== undefined ? !!patch.needsParking : !!prev.needsParking,
       tableId: patch.tableId !== undefined ? patch.tableId : (prev.tableId ?? null),
       seatIndex: patch.seatIndex !== undefined ? patch.seatIndex : (prev.seatIndex ?? null),
       updatedAt: new Date().toISOString(),

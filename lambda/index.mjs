@@ -34,8 +34,8 @@ import {
   DeleteItemCommand,
   BatchWriteItemCommand,
 } from '@aws-sdk/client-dynamodb'
-import { buildDefaultLayout } from './defaultLayout.js'
-import { buildDefaultGuests } from './data/defaultGuests.js'
+import { buildDefaultLayout } from './default-layout.js'
+import { buildDefaultGuests } from './data/default-guests.js'
 
 const s3 = new S3Client({ region: process.env.LAYOUT_S3_REGION || process.env.AWS_REGION })
 const BUCKET = process.env.LAYOUT_S3_BUCKET
@@ -92,6 +92,9 @@ function marshalGuest(g) {
     relation: { S: String(g.relation ?? '') },
     rsvp: { S: String(g.rsvp ?? 'yes') },
     meal: { S: String(g.meal ?? 'chinese') },
+    afterparty: { BOOL: !!g.afterparty },
+    arrived: { BOOL: !!g.arrived },
+    needsParking: { BOOL: !!g.needsParking },
     tableId: g.tableId != null ? { S: String(g.tableId) } : { NULL: true },
     seatIndex: g.seatIndex != null ? { N: String(g.seatIndex) } : { NULL: true },
     updatedAt: { S: g.updatedAt || new Date().toISOString() },
@@ -109,6 +112,9 @@ function unmarshalGuest(item) {
     relation: item.relation?.S || '',
     rsvp: item.rsvp?.S || 'yes',
     meal: item.meal?.S || 'chinese',
+    afterparty: item.afterparty?.BOOL ?? false,
+    arrived: item.arrived?.BOOL ?? false,
+    needsParking: item.needsParking?.BOOL ?? false,
     tableId: item.tableId?.S ?? null,
     seatIndex: item.seatIndex?.N != null ? Number(item.seatIndex.N) : null,
     updatedAt: item.updatedAt?.S || null,
@@ -163,6 +169,9 @@ async function upsertGuest(patch) {
     relation: String(patch.relation ?? prev.relation ?? '').trim(),
     rsvp: patch.rsvp ?? prev.rsvp ?? 'yes',
     meal: patch.meal ?? prev.meal ?? 'chinese',
+    afterparty: patch.afterparty !== undefined ? !!patch.afterparty : !!prev.afterparty,
+    arrived: patch.arrived !== undefined ? !!patch.arrived : !!prev.arrived,
+    needsParking: patch.needsParking !== undefined ? !!patch.needsParking : !!prev.needsParking,
     tableId: patch.tableId !== undefined ? patch.tableId : (prev.tableId ?? null),
     seatIndex: patch.seatIndex !== undefined ? patch.seatIndex : (prev.seatIndex ?? null),
     updatedAt: new Date().toISOString(),

@@ -12,14 +12,15 @@
 //   POST   /api/guests/reset    -> [ guest, ... ]
 //
 // Guests are individual rows, not part of the layout document — see
-// src/useGuests.js for why (so ~200 people can each edit their own row without
-// a whole-document overwrite). Backed by a local JSON file (server/guestStore.js)
-// by default; set GUESTS_TABLE_NAME to point `npm run dev` at a real DynamoDB
-// table instead (server/guestStoreDynamo.js — see DEPLOY-amplify.md §4).
+// src/hooks/use-guests.js for why (so ~200 people can each edit their own row
+// without a whole-document overwrite). Backed by a local JSON file
+// (server/guest-store.js) by default; set GUESTS_TABLE_NAME to point
+// `npm run dev` at a real DynamoDB table instead (server/guest-store-dynamo.js
+// — see DEPLOY-amplify.md §4).
 
-import { getLayout, saveLayout, resetLayout } from './layoutStore.js'
-import * as fileGuestStore from './guestStore.js'
-import * as dynamoGuestStore from './guestStoreDynamo.js'
+import { getLayout, saveLayout, resetLayout } from './layout-store.js'
+import * as fileGuestStore from './guest-store.js'
+import * as dynamoGuestStore from './guest-store-dynamo.js'
 
 const guestStore = process.env.GUESTS_TABLE_NAME ? dynamoGuestStore : fileGuestStore
 const { listGuests, upsertGuest, deleteGuest, resetGuests } = guestStore
