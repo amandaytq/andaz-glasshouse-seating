@@ -32,6 +32,8 @@ export function buildDefaultGuests() {
       afterparty: !!g.afterparty,
       arrived: !!g.arrived,
       needsParking: !!g.needsParking,
+      isChild: !!g.isChild,
+      childMeal: !!g.childMeal,
       ...(g.role ? { role: g.role } : {}),
       tableId: seat.tableId ?? null,
       seatIndex: seat.seatIndex ?? null,

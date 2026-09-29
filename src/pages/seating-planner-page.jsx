@@ -106,6 +106,19 @@ export function SeatingPlannerPage({ onHome }) {
     return m
   }, [guests])
 
+  // Same shape as seatNamesByTable, but the fields the CSV export's Special
+  // Diet / Baby Seat / Child Meal columns need — kept separate from
+  // seatNames since the SVG rendering layer only ever needs the plain name.
+  const seatGuestsByTable = useMemo(() => {
+    const m = new Map()
+    for (const g of guests) {
+      if (g.tableId == null || g.seatIndex == null || !g.name) continue
+      if (!m.has(g.tableId)) m.set(g.tableId, [])
+      m.get(g.tableId)[g.seatIndex] = { meal: g.meal, isChild: g.isChild, childMeal: g.childMeal }
+    }
+    return m
+  }, [guests])
+
   const displayItems = useMemo(() => {
     return (layout?.items ?? []).map((it) => {
       if (it.kind !== 'table') return it
@@ -123,8 +136,14 @@ export function SeatingPlannerPage({ onHome }) {
     () =>
       displayItems
         .filter((it) => it.kind === 'table')
-        .map((it) => ({ id: it.id, name: it.name, pax: it.pax, seatNames: it.seatNames })),
-    [displayItems],
+        .map((it) => ({
+          id: it.id,
+          name: it.name,
+          pax: it.pax,
+          seatNames: it.seatNames,
+          seatGuests: seatGuestsByTable.get(it.id) || [],
+        })),
+    [displayItems, seatGuestsByTable],
   )
 
   const selected = displayItems.find((it) => it.id === selectedId) || null

@@ -1,7 +1,7 @@
 // File-backed store for INDIVIDUAL GUEST ROWS (separate from the table/layout
 // document in layout-store.js). Each guest is its own record — { id, name, side,
-// relation, rsvp, meal, afterparty, arrived, needsParking, role?, tableId,
-// seatIndex, updatedAt } — so 200 people
+// relation, rsvp, meal, afterparty, arrived, needsParking, isChild,
+// childMeal, role?, tableId, seatIndex, updatedAt } — so 200 people
 // can edit 200 different rows at once with no whole-document overwrite: a save
 // only ever touches the one row (and, when it changes a seat, the row of
 // whoever it bumped out of that seat).
@@ -73,6 +73,8 @@ export function upsertGuest(patch) {
       afterparty: patch.afterparty !== undefined ? !!patch.afterparty : !!prev.afterparty,
       arrived: patch.arrived !== undefined ? !!patch.arrived : !!prev.arrived,
       needsParking: patch.needsParking !== undefined ? !!patch.needsParking : !!prev.needsParking,
+      isChild: patch.isChild !== undefined ? !!patch.isChild : !!prev.isChild,
+      childMeal: patch.childMeal !== undefined ? !!patch.childMeal : !!prev.childMeal,
       tableId: patch.tableId !== undefined ? patch.tableId : (prev.tableId ?? null),
       seatIndex: patch.seatIndex !== undefined ? patch.seatIndex : (prev.seatIndex ?? null),
       updatedAt: new Date().toISOString(),

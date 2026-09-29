@@ -32,18 +32,25 @@ function compareTableNames(a, b) {
   return ka[0] - kb[0] || ka[1] - kb[1] || ka[2].localeCompare(kb[2])
 }
 
+const SPECIAL_DIET_LABEL = { halal: 'Halal', vegetarian: 'Vegetarian' } // chinese (the default) isn't a "special" diet — left blank
+
 // One CSV, one row per SEAT (including empty ones), grouped by table in
 // natural order (VIP1, VIP2, Table 3, Table 4, ...) and seat number
 // ascending within each table — a seating chart for printing table cards /
-// place settings, not a guest-list dump. Columns: Table, Seat, Name
+// place settings, not a guest-list dump. Columns: Table, Seat, Name,
+// Special Diet, Baby Seat, Child Meal — each blank unless it applies.
 export function seatingToCsv(tables) {
-  const lines = [['Table', 'Seat', 'Name'].join(',')]
+  const lines = [['Table', 'Seat', 'Name', 'Special Diet', 'Baby Seat', 'Child Meal'].join(',')]
   const sorted = [...tables].sort((a, b) => compareTableNames(a.name, b.name))
   for (const t of sorted) {
     const pax = Math.max(0, Math.round(Number(t.pax) || 0))
     for (let i = 0; i < pax; i++) {
       const name = (t.seatNames && t.seatNames[i]) || ''
-      lines.push([t.name, i + 1, name].map(csvCell).join(','))
+      const g = (t.seatGuests && t.seatGuests[i]) || {}
+      const specialDiet = SPECIAL_DIET_LABEL[g.meal] || ''
+      const babySeat = g.isChild ? 'Yes' : ''
+      const childMeal = g.childMeal ? 'Yes' : ''
+      lines.push([t.name, i + 1, name, specialDiet, babySeat, childMeal].map(csvCell).join(','))
     }
   }
   return lines.join('\r\n')
@@ -175,6 +182,20 @@ export function GuestManager({
           onClick={() => onUpdateGuest(g.id, { needsParking: !g.needsParking })}
         >
           {g.needsParking ? '🅿️' : '—'}
+        </button>
+        <button
+          className={`g-child${g.isChild ? ' is-yes' : ''}`}
+          title={`Child: ${g.isChild ? 'Yes' : 'No'} (click to toggle)`}
+          onClick={() => onUpdateGuest(g.id, { isChild: !g.isChild })}
+        >
+          {g.isChild ? '🧒' : '—'}
+        </button>
+        <button
+          className={`g-childmeal${g.childMeal ? ' is-yes' : ''}`}
+          title={`Child meal required: ${g.childMeal ? 'Yes' : 'No'} (click to toggle)`}
+          onClick={() => onUpdateGuest(g.id, { childMeal: !g.childMeal })}
+        >
+          {g.childMeal ? '🍼' : '—'}
         </button>
         <select
           className={`g-table-sel${seatedAt ? '' : ' is-unseated'}`}

@@ -272,6 +272,8 @@ export function useGuests() {
         afterparty: false,
         arrived: false,
         needsParking: false,
+        isChild: false,
+        childMeal: false,
         tableId: null,
         seatIndex: null,
         ...patch,
@@ -310,6 +312,8 @@ export function useGuests() {
           afterparty: !!r.afterparty,
           arrived: !!r.arrived,
           needsParking: !!r.needsParking,
+          isChild: !!r.isChild,
+          childMeal: !!r.childMeal,
           tableId: null,
           seatIndex: null,
         })
