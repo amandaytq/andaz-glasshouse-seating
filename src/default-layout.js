@@ -27,13 +27,13 @@ export const TABLE_WIDTH_FT = DEFAULT_TABLE_HEIGHT_FT;
 
 export const PAX_PER_FOOT = 1; // long banquet table, seats both sides
 export const FT_PER_PAX = 1 / PAX_PER_FOOT;
-export const MIN_TABLE_LENGTH_FT = 3;
-export const LENGTH_STEP_FT = 3; // table length is always a multiple of this
+export const MIN_TABLE_LENGTH_FT = 6;
+export const LENGTH_STEP_FT = 6; // table length is always a multiple of this
 
 export function paxFromLength(lengthFt) {
   return Math.max(0, Math.round(lengthFt * PAX_PER_FOOT));
 }
-// Length derived from pax (~1 ft/pax), then rounded UP to the next 3 ft.
+// Length derived from pax (~1 ft/pax), then rounded UP to the next 6 ft.
 export function lengthFromPax(pax) {
   const raw = Math.max(
     MIN_TABLE_LENGTH_FT,
