@@ -38,9 +38,11 @@ const SPECIAL_DIET_LABEL = { halal: 'Halal', vegetarian: 'Vegetarian' } // chine
 // natural order (VIP1, VIP2, Table 3, Table 4, ...) and seat number
 // ascending within each table — a seating chart for printing table cards /
 // place settings, not a guest-list dump. Columns: Table, Seat, Name,
-// Special Diet, Baby Seat, Child Meal — each blank unless it applies.
+// Special Diet, Child, Baby Seat, Child Meal — each blank unless it applies.
 export function seatingToCsv(tables) {
-  const lines = [['Table', 'Seat', 'Name', 'Special Diet', 'Baby Seat', 'Child Meal'].join(',')]
+  const lines = [
+    ['Table', 'Seat', 'Name', 'Special Diet', 'Child', 'Baby Seat', 'Child Meal'].join(','),
+  ]
   const sorted = [...tables].sort((a, b) => compareTableNames(a.name, b.name))
   for (const t of sorted) {
     const pax = Math.max(0, Math.round(Number(t.pax) || 0))
@@ -48,9 +50,10 @@ export function seatingToCsv(tables) {
       const name = (t.seatNames && t.seatNames[i]) || ''
       const g = (t.seatGuests && t.seatGuests[i]) || {}
       const specialDiet = SPECIAL_DIET_LABEL[g.meal] || ''
+      const child = g.isChild ? 'Yes' : ''
       const babySeat = g.isChild ? 'Yes' : ''
       const childMeal = g.childMeal ? 'Yes' : ''
-      lines.push([t.name, i + 1, name, specialDiet, babySeat, childMeal].map(csvCell).join(','))
+      lines.push([t.name, i + 1, name, specialDiet, child, babySeat, childMeal].map(csvCell).join(','))
     }
   }
   return lines.join('\r\n')
