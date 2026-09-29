@@ -131,18 +131,17 @@ export function buildDefaultLayout() {
         active: true,
         color: "#d0d4d9",
       },
-      // In the open space to the stage's left (nothing else in the layout
-      // extends past the stage's own left edge, x 7.4), top-aligned with the
-      // stage's own top edge (y 21.0) so it reads as clearly side-by-side
-      // with it, with a real ~1ft gap between them. Portrait (widthFt >
-      // lengthFt) and labelAngle 270, matching the stage's own orientation.
+      // Directly above the stage, in the same column — left edge aligned
+      // with the stage's own left edge (x 7.4) — with a small gap (0.25ft)
+      // above the stage's top edge (y 21.0). Portrait (widthFt > lengthFt)
+      // and labelAngle 270, matching the stage's own orientation.
       {
         id: id("f"),
         kind: "furniture",
         shape: "rect",
         name: "Live Band",
-        x: 4.5,
-        y: 23.85,
+        x: 9.275,
+        y: 17.85,
         rotation: 0,
         labelAngle: 270,
         lengthFt: 3.75,
