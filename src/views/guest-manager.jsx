@@ -16,13 +16,30 @@ const csvCell = (v) => {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
 }
 
+// Natural table order — VIP1, VIP2, then Table 3, Table 4, ... numerically,
+// not the floor-plan-authoring order (which groups top-half/bottom-half) and
+// not alphabetical (which would put "Table 10" before "Table 3").
+function tableSortKey(name) {
+  const vip = name.match(/^VIP\s*(\d+)$/i)
+  if (vip) return [0, Number(vip[1]), name]
+  const table = name.match(/^Table\s*(\d+)$/i)
+  if (table) return [1, Number(table[1]), name]
+  return [1, 999, name]
+}
+function compareTableNames(a, b) {
+  const ka = tableSortKey(a)
+  const kb = tableSortKey(b)
+  return ka[0] - kb[0] || ka[1] - kb[1] || ka[2].localeCompare(kb[2])
+}
+
 // One CSV, one row per SEAT (including empty ones), grouped by table in
-// floor-plan order and seat number ascending within each table — a seating
-// chart for printing table cards / place settings, not a guest-list dump.
-// Columns: Table, Seat, Name
+// natural order (VIP1, VIP2, Table 3, Table 4, ...) and seat number
+// ascending within each table — a seating chart for printing table cards /
+// place settings, not a guest-list dump. Columns: Table, Seat, Name
 export function seatingToCsv(tables) {
   const lines = [['Table', 'Seat', 'Name'].join(',')]
-  for (const t of tables) {
+  const sorted = [...tables].sort((a, b) => compareTableNames(a.name, b.name))
+  for (const t of sorted) {
     const pax = Math.max(0, Math.round(Number(t.pax) || 0))
     for (let i = 0; i < pax; i++) {
       const name = (t.seatNames && t.seatNames[i]) || ''

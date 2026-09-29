@@ -10,6 +10,24 @@ const TABS = [
   { value: 'groom', label: 'Groom' },
 ]
 
+// Natural table order — VIP1, VIP2, then Table 3, Table 4, ... numerically,
+// not the floor-plan-authoring order (which groups top-half/bottom-half) and
+// not alphabetical (which would put "Table 10" before "Table 3"). Unseated
+// guests sort last.
+function tableSortKey(name) {
+  if (!name) return [2, 0, '']
+  const vip = name.match(/^VIP\s*(\d+)$/i)
+  if (vip) return [0, Number(vip[1]), name]
+  const table = name.match(/^Table\s*(\d+)$/i)
+  if (table) return [1, Number(table[1]), name]
+  return [1, 999, name]
+}
+function compareTableNames(a, b) {
+  const ka = tableSortKey(a)
+  const kb = tableSortKey(b)
+  return ka[0] - kb[0] || ka[1] - kb[1] || ka[2].localeCompare(kb[2])
+}
+
 // Public, searchable guest list — no password (unlike /assign-seats). Almost
 // everything here is read-only: name, category, meal, table, afterparty and
 // parking are admin-only fields, edited in the password-gated seating planner
@@ -79,7 +97,12 @@ export function GuestListPage() {
       .filter((g) => category === 'all' || g.relation === category)
       .filter((g) => !needle || g.name.toLowerCase().includes(needle))
       .map((g) => ({ ...g, tableName: g.tableId ? tableNameById.get(g.tableId) : null }))
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort(
+        (a, b) =>
+          compareTableNames(a.tableName, b.tableName) ||
+          (a.seatIndex ?? 999) - (b.seatIndex ?? 999) ||
+          a.name.localeCompare(b.name),
+      )
   }, [guests, side, category, query, tableNameById])
 
   const loading = guestsLoading || layoutLoading
