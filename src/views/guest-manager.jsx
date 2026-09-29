@@ -38,10 +38,10 @@ const SPECIAL_DIET_LABEL = { halal: 'Halal', vegetarian: 'Vegetarian' } // chine
 // natural order (VIP1, VIP2, Table 3, Table 4, ...) and seat number
 // ascending within each table — a seating chart for printing table cards /
 // place settings, not a guest-list dump. Columns: Table, Seat, Name,
-// Special Diet, Child, Baby Seat, Child Meal — each blank unless it applies.
+// Special Dietary, Child, Baby Seat, Child Meal — each blank unless it applies.
 export function seatingToCsv(tables) {
   const lines = [
-    ['Table', 'Seat', 'Name', 'Special Diet', 'Child', 'Baby Seat', 'Child Meal'].join(','),
+    ['Table', 'Seat', 'Name', 'Special Dietary', 'Child', 'Baby Seat', 'Child Meal'].join(','),
   ]
   const sorted = [...tables].sort((a, b) => compareTableNames(a.name, b.name))
   for (const t of sorted) {
